@@ -35,6 +35,9 @@ public final class MediaReader {
   private static final int FIELDS = 9;
 
   private volatile Path onlyFile;
+  // The helper sends a song's cover once, and a song can go and come back without the helper thinking it changed
+  private String artKey;
+  private byte[] artKept;
   private volatile boolean onlyWritten;
 
   private static final String SCRIPT = """
@@ -127,13 +130,16 @@ public final class MediaReader {
           $session = $null
           # With the file there, any other app is passed over here, before anything of what it plays is read
           $only = $OnlyFile -ne '' -and (Test-Path -LiteralPath $OnlyFile)
+          $spotify = $null
           foreach ($candidate in $manager.GetSessions()) {
             if ($only -and $candidate.SourceAppUserModelId -notlike '*spotify*') { continue }
             if ($candidate.GetPlaybackInfo().PlaybackStatus -eq 'Playing') { $session = $candidate; break }
+            if ($only -and $null -eq $spotify) { $spotify = $candidate }
           }
           if ($null -eq $session) {
             $session = $manager.GetCurrentSession()
-            if ($only -and $null -ne $session -and $session.SourceAppUserModelId -notlike '*spotify*') { $session = $null }
+            # Another app being the current one, as a browser is once it plays, does not end a paused Spotify
+            if ($only -and ($null -eq $session -or $session.SourceAppUserModelId -notlike '*spotify*')) { $session = $spotify }
           }
           if ($null -ne $session) {
             $properties = Await ($session.TryGetMediaPropertiesAsync()) $propertiesType
@@ -492,16 +498,28 @@ public final class MediaReader {
     NowPlaying before = this.current;
     boolean playing = "1".equals(fields[2]);
     NowPlaying reading = new NowPlaying(fields[5], fields[6], fields[7], duration, position, now, playing, fields[1], decodeArt(fields[8]));
+    byte[] art = this.artFor(reading);
     boolean sameSong = before != null && before.key().equals(reading.key());
     if (!sameSong) {
-      this.current = reading;
+      this.current = new NowPlaying(reading.title(), reading.artist(), reading.album(), duration, position, now, playing,
+          reading.sourceApp(), art);
       return;
     }
 
     long running = before.positionNow(0L);
     long steady = Math.abs(position - running) <= STEADY_WITHIN_MS ? running : position;
-    byte[] art = reading.artPng() != null ? reading.artPng() : before.artPng();
     this.current = new NowPlaying(reading.title(), reading.artist(), reading.album(), duration, steady, now, playing, reading.sourceApp(), art);
+  }
+
+  /** This reading's cover, or the one this song last sent, which stays the same array so that it reads as unchanged. */
+  private byte[] artFor(NowPlaying reading) {
+    if (reading.artPng() != null) {
+      this.artKey = reading.key();
+      this.artKept = reading.artPng();
+      return this.artKept;
+    }
+
+    return reading.key().equals(this.artKey) ? this.artKept : null;
   }
 
   private static byte[] decodeArt(String base64) {

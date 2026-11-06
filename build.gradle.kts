@@ -1,3 +1,6 @@
+import java.nio.file.FileSystems
+import java.nio.file.Files
+
 plugins {
     id("net.labymod.labygradle")
     id("net.labymod.labygradle.addon")
@@ -34,6 +37,17 @@ labyMod {
 
 tasks.withType<net.labymod.labygradle.common.tasks.CreateReleaseJarTask>().configureEach {
     destination.set(layout.buildDirectory.file("libs/lyrica.jar"))
+
+    // The launcher's addon list takes an icon from the store or from this field, and does not look for textures/icon.png
+    doLast {
+        val jar = destination.get().asFile.toPath()
+        FileSystems.newFileSystem(jar).use { zip ->
+            val info = zip.getPath("addon.json")
+            val text = Files.readString(info)
+            check(text.startsWith("{")) { "addon.json does not start with an object" }
+            Files.writeString(info, "{\"icon\":\"assets/lyrical/textures/icon.png\"," + text.substring(1))
+        }
+    }
 }
 
 subprojects {

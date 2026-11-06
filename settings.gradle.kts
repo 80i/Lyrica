@@ -1,4 +1,4 @@
-rootProject.name = "lyrica"
+rootProject.name = "lyrical"
 
 pluginManagement {
     repositories {
