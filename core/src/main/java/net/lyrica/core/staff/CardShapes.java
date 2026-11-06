@@ -98,6 +98,16 @@ final class CardShapes {
     out.addVertex(pose, right, top, z).setColor(color).setUv(1.0F, 0.0F).setPackedLight(FULL_BRIGHT);
   }
 
+  /** A slice across the material's texture, from {@code u0} to {@code u1}, at the texture's full height. */
+  static void slice(VertexConsumer out, Matrix4f pose, float left, float top, float right, float bottom, float u0, float u1,
+      float z, int rgb, float alpha) {
+    int color = argb(rgb, alpha);
+    out.addVertex(pose, left, top, z).setColor(color).setUv(u0, 0.0F).setPackedLight(FULL_BRIGHT);
+    out.addVertex(pose, left, bottom, z).setColor(color).setUv(u0, 1.0F).setPackedLight(FULL_BRIGHT);
+    out.addVertex(pose, right, bottom, z).setColor(color).setUv(u1, 1.0F).setPackedLight(FULL_BRIGHT);
+    out.addVertex(pose, right, top, z).setColor(color).setUv(u1, 0.0F).setPackedLight(FULL_BRIGHT);
+  }
+
   /** A hard rectangle, for something that lies on the pixel grid. */
   static void rectangle(VertexConsumer out, Matrix4f pose, float left, float top, float right, float bottom, float z,
       int rgb, float alpha) {

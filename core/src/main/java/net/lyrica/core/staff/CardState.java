@@ -33,6 +33,10 @@ final class CardState {
   static final float PAUSE_MARK_ROOM = 6.0F;
   private static final float MOST_LINE_WIDTH = 118.0F;
   private static final float LEAST_SONG_WIDTH = 84.0F;
+  /** How wide a title may make a card for a player who wants to see all of it. */
+  private static final float MOST_FULL_TITLE_WIDTH = 1000.0F;
+  private static final String TITLE_SHORTENED = "CUT";
+  private static final String TITLE_WHOLE = "FULL";
 
   // The full card at half text scale close up. Further off it grows just enough to keep this many screen pixels per
   // text pixel: below that the font's strokes fall between pixels and turn blotchy
@@ -126,6 +130,7 @@ final class CardState {
   private String keyLabel;
   private String keySongTitle;
   private String keySongArtist;
+  private String keyTitleMode;
   private LyricsBridge.LocalSong.Cover keyCover;
   private boolean keyProgress;
   private boolean keyHasTime;
@@ -288,9 +293,11 @@ final class CardState {
     boolean hasTime = song.hasTime();
     boolean paused = !song.playing();
     String label = role == null ? null : LyricsBridge.StaffRole.shown(role.label());
+    String titleMode = bridge.songCardTitle();
     boolean same = this.keySet && this.detail == this.keyDetail && labelRgb == this.keyColor
         && progress == this.keyProgress && hasTime == this.keyHasTime && paused == this.keyPaused && Objects.equals(song.cover(), this.keyCover)
         && song.title().equals(this.keySongTitle) && song.artist().equals(this.keySongArtist)
+        && titleMode.equals(this.keyTitleMode)
         && this.look.cover() == this.keyCoverOn && this.look.wave() == this.keyWaveOn
         && this.look.time() == this.keyTimeOn && this.lightPanel == this.keyLightPanel
         && Objects.equals(label, this.keyLabel);
@@ -313,6 +320,7 @@ final class CardState {
     this.keyColor = labelRgb;
     this.keySongTitle = song.title();
     this.keySongArtist = song.artist();
+    this.keyTitleMode = titleMode;
     this.keyCover = song.cover();
     this.keyProgress = progress;
     this.keyHasTime = hasTime;
@@ -497,7 +505,17 @@ final class CardState {
     float room = paused ? BESIDE_TIME + PAUSE_MARK_ROOM + wordWidth : showTime ? BESIDE_TIME + TIME_ROOM : 0.0F;
     // The time stands on the top line, whichever line that is
     Words labelWords = label == null ? null : Words.of(label, true, MOST_LINE_WIDTH - room, TIME_SIZE, font, bridge);
-    Words first = Words.of(title, true, label == null ? MOST_LINE_WIDTH - room : MOST_LINE_WIDTH, 1.0F, font, bridge);
+    float titleRoom = label == null ? MOST_LINE_WIDTH - room : MOST_LINE_WIDTH;
+    String titleMode = bridge.songCardTitle();
+    Words first;
+    if (TITLE_SHORTENED.equals(titleMode)) {
+      first = Words.of(title, true, titleRoom, 1.0F, font, bridge);
+    } else if (TITLE_WHOLE.equals(titleMode)) {
+      first = Words.of(title, true, MOST_FULL_TITLE_WIDTH, 1.0F, font, bridge);
+    } else {
+      first = Words.sliding(title, titleRoom, font, bridge);
+    }
+
     Words second = under.isEmpty() ? null : Words.of(under, false, MOST_LINE_WIDTH, ARTIST_SIZE, font, bridge);
     return new Face(labelWords, first, second, color, true, song.hasProgress(), cover, this.look.wave(), showTime, paused,
         word, wordWidth, detail);

@@ -11,12 +11,15 @@ import net.labymod.api.laby3d.pipeline.RenderStates;
 import net.labymod.api.laby3d.pipeline.material.LevelMaterial;
 import net.labymod.api.laby3d.pipeline.material.Material;
 import net.labymod.api.laby3d.render.queue.SubmissionCollector;
+import net.labymod.laby3d.api.vertex.VertexConsumer;
 import net.lyrica.api.LyricsBridge;
+import org.joml.Matrix4f;
 
 /**
  * One line of words on a card. The font LabyMod draws tags in has Latin letters and little else and shows anything further
  * afield as empty boxes, and it pays no attention to a font asked for. So words with other letters come as a picture from
- * the version side, which also gets their joining and direction right, and everything else is plain text.
+ * the version side, which also gets their joining and direction right, and everything else is plain text. A title that
+ * slides is also a picture whatever its letters: a tag's text cannot be clipped, but a window on a picture can.
  */
 final class Words {
 
@@ -26,6 +29,11 @@ final class Words {
   private static final char PUNCTUATION_ENDS = 0x2070;
   private static final int SHADOW_RGB = 0x000000;
   private static final float SHADOW_ALPHA = 0.55F;
+  // A picture of the whole title, however long, within what a texture can be
+  private static final float MOST_PICTURE_WIDTH = 2000.0F;
+  private static final long SLIDE_HOLD_MS = 1_600L;
+  private static final float SLIDE_UNITS_PER_S = 14.0F;
+  private static final float SLIDE_GAP = 26.0F;
   private static final Map<ResourceLocation, Material> MATERIALS = new HashMap<>();
 
   final Component text;
@@ -35,13 +43,22 @@ final class Words {
   final float size;
   /** Its picture is still being made, so this stands in for it. */
   final boolean waiting;
+  /** The width of the window the picture slides through, or 0 when it does not slide. */
+  private final float window;
+  private final long sinceMs;
 
   private Words(Component text, LyricsBridge.TextImage image, float width, float size, boolean waiting) {
+    this(text, image, width, size, waiting, 0.0F);
+  }
+
+  private Words(Component text, LyricsBridge.TextImage image, float width, float size, boolean waiting, float window) {
     this.text = text;
     this.image = image;
     this.width = width;
     this.size = size;
     this.waiting = waiting;
+    this.window = window;
+    this.sinceMs = System.currentTimeMillis();
   }
 
   /** @param most how wide it may get on the card, in text pixels */
@@ -61,6 +78,28 @@ final class Words {
     }
 
     return new Words(null, image, image.width() * size, size, false);
+  }
+
+  /**
+   * A bold title at full size that slides through a window of this width if it does not fit. Until its picture is made,
+   * a title in the tag's font stands in for it, cut to fit.
+   *
+   * @param window how wide it may get on the card, in text pixels
+   */
+  static Words sliding(String words, float window, FontRenderer font, LyricsBridge bridge) {
+    boolean latin = latin(words);
+    if (latin && font.getWidth(Component.text(words).decorate(TextDecoration.BOLD)) <= window) {
+      return of(words, true, window, 1.0F, font, bridge);
+    }
+
+    LyricsBridge.TextImage image = bridge.wordsImage(words, true, MOST_PICTURE_WIDTH);
+    if (image == null) {
+      Words standIn = of(words, true, window, 1.0F, font, bridge);
+      return new Words(standIn.text, standIn.image, standIn.width, 1.0F, true);
+    }
+
+    return image.width() <= window ? new Words(null, image, image.width(), 1.0F, false)
+        : new Words(null, image, window, 1.0F, false, window);
   }
 
   private static boolean latin(String text) {
@@ -106,6 +145,12 @@ final class Words {
     float bottom = top + this.image.height() * this.size;
     float pixel = grid.pixel;
     Material material = material(this.image.texture());
+    if (this.window > 0.0F) {
+      this.submitSliding(stack, collector, material, left, grid.x(x + this.window), top, bottom, pixel, rgb, alpha, z, order,
+          shadow);
+      return;
+    }
+
     collector.order(order).submitCustomGeometry(stack, material, (pose, out) -> {
       if (shadow) {
         CardShapes.picture(out, pose, left + pixel, top + pixel, right + pixel, bottom + pixel, z, SHADOW_RGB,
@@ -114,6 +159,39 @@ final class Words {
 
       CardShapes.picture(out, pose, left, top, right, bottom, z, rgb, alpha);
     });
+  }
+
+  /** The window on the picture, with the title's start following its end around, waiting a while at the start. */
+  private void submitSliding(Stack stack, SubmissionCollector collector, Material material, float left, float right,
+      float top, float bottom, float pixel, int rgb, float alpha, float z, int order, boolean shadow) {
+    float wide = this.image.width();
+    float travel = wide + SLIDE_GAP;
+    long rollMs = (long) (travel / SLIDE_UNITS_PER_S * 1000.0F);
+    long at = (System.currentTimeMillis() - this.sinceMs) % (SLIDE_HOLD_MS + rollMs);
+    float along = at <= SLIDE_HOLD_MS ? 0.0F : (at - SLIDE_HOLD_MS) * SLIDE_UNITS_PER_S / 1000.0F;
+    float shown = right - left;
+    float firstEnd = Math.min(wide, along + shown);
+    float secondWide = Math.min(shown, along + shown - travel);
+    collector.order(order).submitCustomGeometry(stack, material, (pose, out) -> {
+      if (shadow) {
+        slices(out, pose, left + pixel, top + pixel, bottom + pixel, along, firstEnd, secondWide, travel, wide, z, SHADOW_RGB,
+            alpha * SHADOW_ALPHA);
+      }
+
+      slices(out, pose, left, top, bottom, along, firstEnd, secondWide, travel, wide, z, rgb, alpha);
+    });
+  }
+
+  private static void slices(VertexConsumer out, Matrix4f pose, float left, float top, float bottom, float along,
+      float firstEnd, float secondWide, float travel, float wide, float z, int rgb, float alpha) {
+    if (along < wide) {
+      CardShapes.slice(out, pose, left, top, left + firstEnd - along, bottom, along / wide, firstEnd / wide, z, rgb, alpha);
+    }
+
+    if (secondWide > 0.0F) {
+      float start = left + travel - along;
+      CardShapes.slice(out, pose, start, top, start + secondWide, bottom, 0.0F, secondWide / wide, z, rgb, alpha);
+    }
   }
 
   private static Material material(ResourceLocation texture) {

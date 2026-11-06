@@ -27,6 +27,9 @@ public final class AlbumTexture {
   public static final Identifier COVER = Identifier.fromNamespaceAndPath("lyrical", "cover");
   public static final Identifier RECORD = Identifier.fromNamespaceAndPath("lyrical", "cover_record");
 
+  /** Which of a cover's corners are rounded off. */
+  public enum Rounded { LEFT, TOP, ALL }
+
   // The card over the name: each cover at these sizes, because the game's samplers here have no mipmaps. Two slots,
   // taken in turn, so a card fading out the last song's cover still has it while the next one is loaded.
   private static final int[] CARD_SIZES = {SIZE, SIZE / 2, SIZE / 4};
@@ -34,6 +37,8 @@ public final class AlbumTexture {
   private static final int MOST_SHARED = 128;
 
   private static final Identifier BLANK_RECORD = Identifier.fromNamespaceAndPath("lyrical", "blank_record");
+  private static final Identifier ROUNDED_COVER = Identifier.fromNamespaceAndPath("lyrical", "cover_rounded");
+  private static final Identifier PANEL_CORNERS = Identifier.fromNamespaceAndPath("lyrical", "panel_corners");
   private static final long FADE_IN_MS = 220L;
 
   private static final float CENTER = (SIZE - 1) * 0.5F;
@@ -46,6 +51,11 @@ public final class AlbumTexture {
   private static volatile byte[] wanted;
   private static byte[] loaded;
   private static byte[] loadedThumb;
+  private static int[] loadedPixels;
+  private static int[] roundedFrom;
+  private static int roundedTexels = -1;
+  private static Rounded roundedCorners;
+  private static int cornersRadius;
   private static final Map<UUID, Shared> SHARED = new HashMap<>();
   private static long loadedAtMs;
   private static boolean blankMade;
@@ -117,6 +127,69 @@ public final class AlbumTexture {
     return BLANK_RECORD;
   }
 
+  /**
+   * The loaded cover with some of its corners rounded off, to fit the card it stands on. Made again only when the cover or
+   * the corners change. Colour stays in the see-through pixels, so smooth sampling gives no pale fringe. Only while
+   * {@link #shows} says there is a cover.
+   *
+   * @param texels the radius, in the texture's pixels
+   */
+  public static Identifier roundedCover(int texels, Rounded rounded) {
+    if (loadedPixels != roundedFrom || texels != roundedTexels || rounded != roundedCorners) {
+      roundedFrom = loadedPixels;
+      roundedTexels = texels;
+      roundedCorners = rounded;
+      NativeImage image = new NativeImage(SIZE, SIZE, false);
+      for (int y = 0; y < SIZE; y++) {
+        for (int x = 0; x < SIZE; x++) {
+          boolean left = x < texels;
+          boolean top = y < texels;
+          boolean corner = (left || x >= SIZE - texels) && (top || y >= SIZE - texels)
+              && (rounded == Rounded.ALL || rounded == Rounded.LEFT && left || rounded == Rounded.TOP && top);
+          float alpha = 1.0F;
+          if (corner) {
+            float dx = left ? texels - (x + 0.5F) : x + 0.5F - (SIZE - texels);
+            float dy = top ? texels - (y + 0.5F) : y + 0.5F - (SIZE - texels);
+            alpha = clamp01(texels + 0.5F - (float) Math.sqrt(dx * dx + dy * dy));
+          }
+
+          image.setPixel(x, y, Math.round(alpha * 255.0F) << 24 | loadedPixels[y * SIZE + x] & 0xFFFFFF);
+        }
+      }
+
+      Minecraft.getInstance().getTextureManager().register(ROUNDED_COVER, new SmoothTexture("Lyrica rounded cover", image));
+    }
+
+    return ROUNDED_COVER;
+  }
+
+  /**
+   * A disc to take a panel's four corners from, drawn at one texture pixel to the screen pixel: its outermost pixel the
+   * rim's colour, its edge blended. Made again only when the radius changes.
+   *
+   * @param radius the corner's radius, in screen pixels
+   */
+  public static Identifier panelCorners(int radius, int bodyRgb, int rimRgb) {
+    if (radius != cornersRadius) {
+      cornersRadius = radius;
+      int side = radius * 2;
+      NativeImage image = new NativeImage(side, side, false);
+      for (int y = 0; y < side; y++) {
+        for (int x = 0; x < side; x++) {
+          float dx = x + 0.5F - radius;
+          float dy = y + 0.5F - radius;
+          float d = (float) Math.sqrt(dx * dx + dy * dy);
+          int rgb = Palette.mix(bodyRgb, rimRgb, clamp01(d - radius + 1.5F));
+          image.setPixel(x, y, Math.round(clamp01(radius + 0.5F - d) * 255.0F) << 24 | rgb);
+        }
+      }
+
+      Minecraft.getInstance().getTextureManager().register(PANEL_CORNERS, new SmoothTexture("Lyrica panel corners", image));
+    }
+
+    return PANEL_CORNERS;
+  }
+
   /** Lets go of the textures, for when the addon is switched off. */
   public static void clear() {
     wanted = null;
@@ -130,6 +203,18 @@ public final class AlbumTexture {
       textures.release(COVER);
       textures.release(RECORD);
       loaded = null;
+      loadedPixels = null;
+    }
+
+    if (roundedFrom != null) {
+      textures.release(ROUNDED_COVER);
+      roundedFrom = null;
+      roundedTexels = -1;
+    }
+
+    if (cornersRadius != 0) {
+      textures.release(PANEL_CORNERS);
+      cornersRadius = 0;
     }
 
     for (int slot = 0; slot < CARD_SLOTS; slot++) {
@@ -239,6 +324,7 @@ public final class AlbumTexture {
     }
 
     loaded = done.art;
+    loadedPixels = done.pixels;
     loadedThumb = done.thumb;
     loadedAtMs = System.currentTimeMillis();
   }
@@ -258,7 +344,7 @@ public final class AlbumTexture {
       }
 
       Decoded overtaken = FINISHED.getAndSet(new Decoded(art, cover, pressRecord(pixels), shrunkenCopies(pixels),
-          shrink(pixels)));
+          shrink(pixels), pixels));
       if (overtaken != null) {
         overtaken.close();
       }
@@ -417,7 +503,7 @@ public final class AlbumTexture {
 
   }
 
-  private record Decoded(byte[] art, NativeImage cover, NativeImage record, NativeImage[] card, byte[] thumb) {
+  private record Decoded(byte[] art, NativeImage cover, NativeImage record, NativeImage[] card, byte[] thumb, int[] pixels) {
 
     void close() {
       this.cover.close();

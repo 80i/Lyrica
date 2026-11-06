@@ -107,6 +107,12 @@ public interface LyricsBridge {
   /** Whether every song card on this game stands under the name rather than over it. */
   boolean songCardUnderName();
 
+  /**
+   * What every song card on this game does with a title too long for it: SLIDE moves the whole title past, CUT ends it in
+   * an ellipsis, FULL makes the card wide enough. Only this game's player chooses this, and it changes nothing for others.
+   */
+  String songCardTitle();
+
   /** Words as a picture, for scripts the tag font lacks; null while it is being made. On the render thread. */
   TextImage wordsImage(String text, boolean bold, float mostWidth);
 

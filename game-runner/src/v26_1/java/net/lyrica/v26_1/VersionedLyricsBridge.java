@@ -419,6 +419,11 @@ public class VersionedLyricsBridge implements LyricsBridge {
   }
 
   @Override
+  public String songCardTitle() {
+    return LookStore.get().headTitle;
+  }
+
+  @Override
   public LocalSong localSong() {
     NowPlaying song = this.running ? currentSong() : null;
     if (song == null) {

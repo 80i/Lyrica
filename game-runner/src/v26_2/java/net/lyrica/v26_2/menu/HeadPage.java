@@ -19,6 +19,7 @@ final class HeadPage extends Page {
   private static final String[] PLACES = {"OVER", "UNDER"};
   private static final String[] SOURCES = {"ALL", "SPOTIFY"};
   private static final String[] ACCENT_FROM = {"STATIC", "ALBUM"};
+  private static final String[] TITLES = {"SLIDE", "CUT", "FULL"};
 
   /** Holds while the game runs, so that coming back to the page finds it as it was left. */
   private static boolean seeItOnMe;
@@ -57,6 +58,8 @@ final class HeadPage extends Page {
     this.columns.group("lyrical.menu.head.shows")
         .add(new Chips("lyrical.menu.head.place", PLACES, () -> this.look.headPlace,
             value -> this.look.headPlace = value, () -> base.headPlace))
+        .add(new Chips("lyrical.menu.head.title", TITLES, () -> this.look.headTitle,
+            value -> this.look.headTitle = value, () -> base.headTitle))
         .add(new Lamp("lyrical.menu.head.cover", () -> this.look.headCover, value -> this.look.headCover = value,
             () -> base.headCover))
         .add(new Lamp("lyrical.menu.head.wave", () -> this.look.headWave, value -> this.look.headWave = value,

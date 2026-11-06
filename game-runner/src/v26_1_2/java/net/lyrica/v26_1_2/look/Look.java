@@ -118,6 +118,8 @@ public final class Look {
   public int headAccent = Palette.ACCENT;
   // What the wave of every song card on this game takes: STATIC, headAccent; or ALBUM, that song's cover
   public String headAccentMode = "STATIC";
+  // What every song card on this game does with a title too long for it: SLIDE, CUT, FULL
+  public String headTitle = "SLIDE";
   // Whether one's own role shows on this game. Others go by the list
   public boolean showOwnRole = true;
   // What may be read from the PC: ALL, any app that plays; or SPOTIFY, nothing but the Spotify app
@@ -180,6 +182,7 @@ public final class Look {
     copy.headTime = this.headTime;
     copy.headAccent = this.headAccent;
     copy.headAccentMode = this.headAccentMode;
+    copy.headTitle = this.headTitle;
     copy.showOwnRole = this.showOwnRole;
     copy.mediaSources = this.mediaSources;
     copy.saved =this.saved == null ? new ArrayList<>() : new ArrayList<>(this.saved);
@@ -249,6 +252,7 @@ public final class Look {
     this.cardCorner = orDefault(this.cardCorner, plain.cardCorner);
     this.pausedCard = orDefault(this.pausedCard, plain.pausedCard);
     this.headPlace = orDefault(this.headPlace, plain.headPlace);
+    this.headTitle = orDefault(this.headTitle, plain.headTitle);
     this.headOpacity = clamp(this.headOpacity, 0.0F, 1.0F, plain.headOpacity);
     this.headCorners = clamp(this.headCorners, 0.0F, 20.0F, plain.headCorners);
     this.headSize = clamp(this.headSize, 0.6F, 1.6F, plain.headSize);
