@@ -37,7 +37,7 @@ import net.lyrica.v1_21_10.words.LyricsLibrary;
 @Implements(LyricsBridge.class)
 public class VersionedLyricsBridge implements LyricsBridge {
 
-  private static final String ADDON_ID = "lyrica";
+  private static final String ADDON_ID = "lyrical";
   private static final long ENABLED_POLL_MS = 250L;
   private static final int SONG_POLL_TICKS = 5;
   private static final long MOST_SONG_OFFSET_MS = 5_000L;
@@ -190,7 +190,7 @@ public class VersionedLyricsBridge implements LyricsBridge {
     }
 
     LookStore.save();
-    say(I18n.translate("lyrica.chat.nudge", (now > 0L ? "+" : "") + now));
+    say(I18n.translate("lyrical.chat.nudge", (now > 0L ? "+" : "") + now));
   }
 
   @Override
@@ -198,7 +198,7 @@ public class VersionedLyricsBridge implements LyricsBridge {
     Look look = LookStore.get();
     look.showLyrics = !look.showLyrics;
     LookStore.save();
-    say(I18n.translate(look.showLyrics ? "lyrica.chat.shown" : "lyrica.chat.hidden"));
+    say(I18n.translate(look.showLyrics ? "lyrical.chat.shown" : "lyrical.chat.hidden"));
   }
 
   private static void say(String text) {
@@ -230,6 +230,7 @@ public class VersionedLyricsBridge implements LyricsBridge {
       case SHARE_SONG -> look.shareSong;
       case SHOW_SHARED -> look.showShared;
       case TEAM_ROLES -> look.staffBadges;
+      case SPOTIFY_ONLY -> "SPOTIFY".equals(look.mediaSources);
     };
   }
 
@@ -250,6 +251,7 @@ public class VersionedLyricsBridge implements LyricsBridge {
       case SHARE_SONG -> look.shareSong = on;
       case SHOW_SHARED -> look.showShared = on;
       case TEAM_ROLES -> look.staffBadges = on;
+      case SPOTIFY_ONLY -> look.mediaSources = on ? "SPOTIFY" : "ALL";
     }
 
     LookStore.save();

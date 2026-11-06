@@ -29,7 +29,7 @@ import net.lyrica.core.share.SongShare;
  */
 public class BadgeTag extends AbstractNameTag {
 
-  private static final String ADDON_ID = "lyrica";
+  private static final String ADDON_ID = "lyrical";
 
   private static final float SIZE = 0.78F;
   private static final float CAP_HEIGHT = 7.0F;

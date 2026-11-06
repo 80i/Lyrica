@@ -238,7 +238,7 @@ public final class NowCard {
     contentFade = 0.0F;
     tickerScroll = 0.0F;
     shownSecond = -1L;
-    String title = song.title() == null || song.title().isBlank() ? I18n.translate("lyrica.card.untitled")
+    String title = song.title() == null || song.title().isBlank() ? I18n.translate("lyrical.card.untitled")
         : song.title().strip();
     TITLE.set(title, TITLE_STYLE);
     String artist = song.artist() == null || song.artist().isBlank() ? song.sourceApp() : song.artist().strip();
@@ -271,9 +271,9 @@ public final class NowCard {
     if (state != statusState) {
       statusState = state;
       String key = switch (state) {
-        case SEARCHING -> "lyrica.card.searching";
-        case NOT_FOUND -> "lyrica.card.not_found";
-        case OFFLINE -> "lyrica.card.offline";
+        case SEARCHING -> "lyrical.card.searching";
+        case NOT_FOUND -> "lyrical.card.not_found";
+        case OFFLINE -> "lyrical.card.offline";
         default -> null;
       };
       STATUS.set(key == null ? "" : I18n.translate(key), TITLE_STYLE);

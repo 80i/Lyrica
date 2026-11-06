@@ -2,7 +2,7 @@
   "providers": [
     {
       "type": "ttf",
-      "file": "lyrica:bebas.ttf",
+      "file": "lyrical:bebas.ttf",
       "size": 10.0,
       "oversample": 4.2
     },

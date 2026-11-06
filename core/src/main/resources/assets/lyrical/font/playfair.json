@@ -2,9 +2,9 @@
   "providers": [
     {
       "type": "ttf",
-      "file": "lyrica:comic_relief.ttf",
-      "size": 9.2,
-      "oversample": 4.6
+      "file": "lyrical:playfair.ttf",
+      "size": 9.9,
+      "oversample": 4.2
     },
     {
       "type": "reference",

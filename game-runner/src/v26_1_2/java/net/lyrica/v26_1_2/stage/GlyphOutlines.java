@@ -62,7 +62,7 @@ public final class GlyphOutlines {
     private static final int MAX_WIDTH_STEP = 80;
     /** A face drops its outlined meshes past this many, which caps them at about 40 MB a face. */
     private static final int MAX_OUTLINED_MESHES = 4096;
-    private static final String FONT_PATH = "/assets/lyrica/font/";
+    private static final String FONT_PATH = "/assets/lyrical/font/";
     private static final FontRenderContext FRC = new FontRenderContext(null, true, true);
     private static final AffineTransform READ_TO_GLYPH = AffineTransform.getScaleInstance(READ_TO_GLYPH_PX, READ_TO_GLYPH_PX);
     private static final GlyphMesh MISSING = GlyphMesh.blank(-1f);
@@ -90,7 +90,7 @@ public final class GlyphOutlines {
     /**
      * The mesh for one code point.
      *
-     * @param font      file name without extension, as in /assets/lyrica/font/&lt;font&gt;.ttf
+     * @param font      file name without extension, as in /assets/lyrical/font/&lt;font&gt;.ttf
      * @param bold      uses &lt;font&gt;_bold.ttf when that file exists, otherwise the regular file
      * @param codePoint the character
      * @param detail    {@link #FINE} or {@link #COARSE}

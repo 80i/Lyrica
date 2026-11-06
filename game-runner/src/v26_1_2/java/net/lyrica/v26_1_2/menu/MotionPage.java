@@ -26,30 +26,30 @@ final class MotionPage extends Page {
 
   @Override
   protected void build() {
-    this.columns.group("lyrica.menu.motion.shape")
-        .add(new Chips("lyrica.menu.motion.arrange", ARRANGE, () -> this.look.arrange,
+    this.columns.group("lyrical.menu.motion.shape")
+        .add(new Chips("lyrical.menu.motion.arrange", ARRANGE, () -> this.look.arrange,
             value -> this.look.arrange = value, () -> base.arrange));
 
-    this.columns.group("lyrica.menu.motion.in_out")
-        .add(new Dial("lyrica.menu.motion.enter", ENTERS, () -> this.look.enter, value -> this.look.enter = value,
+    this.columns.group("lyrical.menu.motion.in_out")
+        .add(new Dial("lyrical.menu.motion.enter", ENTERS, () -> this.look.enter, value -> this.look.enter = value,
             () -> base.enter))
-        .add(new Dial("lyrica.menu.motion.exit", EXITS, () -> this.look.exit, value -> this.look.exit = value,
+        .add(new Dial("lyrical.menu.motion.exit", EXITS, () -> this.look.exit, value -> this.look.exit = value,
             () -> base.exit));
 
-    this.columns.group("lyrica.menu.motion.meanwhile")
-        .add(new Dial("lyrica.menu.motion.idle", IDLES, () -> this.look.idle, value -> this.look.idle = value,
+    this.columns.group("lyrical.menu.motion.meanwhile")
+        .add(new Dial("lyrical.menu.motion.idle", IDLES, () -> this.look.idle, value -> this.look.idle = value,
             () -> base.idle))
-        .add(new Fader("lyrica.menu.motion.idle_speed", () -> this.look.idleSpeed,
+        .add(new Fader("lyrical.menu.motion.idle_speed", () -> this.look.idleSpeed,
             value -> this.look.idleSpeed = value, () -> base.idleSpeed, 0.1F, 3.0F, 0.05F, Fader.TWO_PLACES)
             .when(this::idles))
-        .add(new Fader("lyrica.menu.motion.idle_amount", () -> this.look.idleAmount,
+        .add(new Fader("lyrical.menu.motion.idle_amount", () -> this.look.idleAmount,
             value -> this.look.idleAmount = value, () -> base.idleAmount, 0.0F, 2.0F, 0.05F, Fader.TWO_PLACES)
             .when(this::idles));
 
-    this.columns.group("lyrica.menu.motion.singing")
-        .add(new Lamp("lyrica.menu.motion.karaoke", () -> this.look.karaoke, value -> this.look.karaoke = value,
+    this.columns.group("lyrical.menu.motion.singing")
+        .add(new Lamp("lyrical.menu.motion.karaoke", () -> this.look.karaoke, value -> this.look.karaoke = value,
             () -> base.karaoke))
-        .add(new Chips("lyrica.menu.motion.karaoke_style", KARAOKE, () -> this.look.karaokeStyle,
+        .add(new Chips("lyrical.menu.motion.karaoke_style", KARAOKE, () -> this.look.karaokeStyle,
             value -> this.look.karaokeStyle = value, () -> base.karaokeStyle).when(() -> this.look.karaoke));
   }
 

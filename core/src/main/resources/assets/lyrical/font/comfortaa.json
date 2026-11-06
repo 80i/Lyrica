@@ -2,9 +2,9 @@
   "providers": [
     {
       "type": "ttf",
-      "file": "lyrica:montserrat.ttf",
-      "size": 10.0,
-      "oversample": 4.2
+      "file": "lyrical:comfortaa.ttf",
+      "size": 9.0,
+      "oversample": 4.7
     },
     {
       "type": "reference",

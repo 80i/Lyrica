@@ -25,7 +25,7 @@ public final class StageBuffers {
   /** Lines fading at the same time beyond this many share the nearest layer. */
   static final int FADE_LAYERS = 4;
 
-  private static final ResourceLocation WHITE = ResourceLocation.fromNamespaceAndPath("lyrica", "white");
+  private static final ResourceLocation WHITE = ResourceLocation.fromNamespaceAndPath("lyrical", "white");
 
   public final Pass shadow = new Pass();
   public final Pass halo = new Pass();

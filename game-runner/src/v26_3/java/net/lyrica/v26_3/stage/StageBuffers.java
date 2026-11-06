@@ -40,7 +40,7 @@ public final class StageBuffers {
 
   // Closed once the pass that draws from them has ended
   private static final List<GpuBuffer> FRAME_BUFFERS = new ArrayList<>();
-  private static final Identifier WHITE = Identifier.fromNamespaceAndPath("lyrica", "white");
+  private static final Identifier WHITE = Identifier.fromNamespaceAndPath("lyrical", "white");
 
   public final Pass shadow = new Pass();
   public final Pass halo = new Pass();

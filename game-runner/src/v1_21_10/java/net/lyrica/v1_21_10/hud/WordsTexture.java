@@ -149,7 +149,7 @@ public final class WordsTexture {
     }
 
     net.minecraft.resources.ResourceLocation texture() {
-      return net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("lyrica", "words_" + this.id);
+      return net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("lyrical", "words_" + this.id);
     }
   }
 }

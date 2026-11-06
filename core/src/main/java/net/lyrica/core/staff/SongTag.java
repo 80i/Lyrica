@@ -33,7 +33,7 @@ import net.lyrica.core.share.SongShare;
  */
 public class SongTag extends AbstractNameTag {
 
-  private static final String ADDON_ID = "lyrica";
+  private static final String ADDON_ID = "lyrical";
 
   private static final float GAP_BELOW = 3.0F;
   private static final float SMALLEST_RADIUS_PIXELS = 4.0F;

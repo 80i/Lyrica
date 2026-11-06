@@ -33,7 +33,7 @@ abstract class Page {
 
   Page(String id) {
     this.id = id;
-    this.title = I18n.translate("lyrica.menu.page." + id);
+    this.title = I18n.translate("lyrical.menu.page." + id);
   }
 
   /** Fills the columns. Controls that keep typed text must be kept by the page and added again. */

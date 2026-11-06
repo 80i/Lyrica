@@ -1208,11 +1208,11 @@ public final class LetterSmoke {
   }
 
   private static void setAddonEnabled(boolean enabled) {
-    LoadedAddon addon = Laby.labyAPI().addonService().getAddon("lyrica").orElse(null);
+    LoadedAddon addon = Laby.labyAPI().addonService().getAddon("lyrical").orElse(null);
     if (addon != null && addon.getInstance() instanceof LabyAddon<?> labyAddon) {
       labyAddon.configuration().enabled().set(enabled);
       Env.LOG.info(TAG + "addon enabled set to " + enabled + ", service says "
-          + Laby.labyAPI().addonService().isEnabled("lyrica"));
+          + Laby.labyAPI().addonService().isEnabled("lyrical"));
     } else {
       Env.LOG.warn(TAG + "could not find the addon to switch");
     }

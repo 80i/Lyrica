@@ -90,7 +90,7 @@ public abstract class Control {
 
   public String hint(double mx, double my) {
     if (this.enabled() && this.isChanged() && mx < this.x + Ink.GUTTER) {
-      return words("lyrica.menu.reset");
+      return words("lyrical.menu.reset");
     }
 
     return this.description;

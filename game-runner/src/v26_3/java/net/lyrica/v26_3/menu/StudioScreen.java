@@ -48,12 +48,12 @@ public final class StudioScreen extends Screen {
   private final Look look = LookStore.get();
   private final Scroller tabScroller = new Scroller();
   private final FormattedCharSequence wordmark =
-      FormattedCharSequence.forward(I18n.translate("lyrica.menu.wordmark"), Ink.FACE);
-  private final String idleHint = I18n.translate("lyrica.menu.hint");
-  private final String cardHint = I18n.translate("lyrica.menu.card_hint");
-  private final String resetAllWords = I18n.translate("lyrica.menu.reset_all");
-  private final String resetAllSure = I18n.translate("lyrica.menu.reset_all.sure");
-  private final String resetAllHint = I18n.translate("lyrica.menu.reset_all.desc");
+      FormattedCharSequence.forward(I18n.translate("lyrical.menu.wordmark"), Ink.FACE);
+  private final String idleHint = I18n.translate("lyrical.menu.hint");
+  private final String cardHint = I18n.translate("lyrical.menu.card_hint");
+  private final String resetAllWords = I18n.translate("lyrical.menu.reset_all");
+  private final String resetAllSure = I18n.translate("lyrical.menu.reset_all.sure");
+  private final String resetAllHint = I18n.translate("lyrical.menu.reset_all.desc");
 
   /** Until when a click on Reset all counts as the second one that really does it. */
   private long resetArmedUntilMs;
@@ -76,7 +76,7 @@ public final class StudioScreen extends Screen {
   private boolean staffPageAdded;
 
   public StudioScreen() {
-    super(Component.literal(I18n.translate("lyrica.menu.title")));
+    super(Component.literal(I18n.translate("lyrical.menu.title")));
     this.pages.add(new LooksPage());
     this.pages.add(new TypePage());
     this.pages.add(new ColourPage());

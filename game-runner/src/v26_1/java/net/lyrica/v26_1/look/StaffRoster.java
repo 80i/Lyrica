@@ -49,7 +49,7 @@ import net.lyrica.v26_1.words.Http;
  */
 public final class StaffRoster {
 
-  private static final String BUNDLED = "/assets/lyrica/staff.json";
+  private static final String BUNDLED = "/assets/lyrical/staff.json";
   private static final String PROFILE_URL = "https://api.minecraftservices.com/minecraft/profile";
   private static final String NAME_LOOKUP_URL = "https://api.mojang.com/users/profiles/minecraft/";
   private static final Pattern ACCOUNT_NAME = Pattern.compile("[A-Za-z0-9_]{1,16}");
@@ -976,7 +976,7 @@ public final class StaffRoster {
   }
 
   private static void setAddStatus(String outcome, String name) {
-    addStatus = new AddStatus("lyrica.menu.staff.lookup." + outcome, name);
+    addStatus = new AddStatus("lyrical.menu.staff.lookup." + outcome, name);
     revision++;
   }
 

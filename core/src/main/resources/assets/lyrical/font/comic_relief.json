@@ -2,9 +2,9 @@
   "providers": [
     {
       "type": "ttf",
-      "file": "lyrica:comfortaa.ttf",
-      "size": 9.0,
-      "oversample": 4.7
+      "file": "lyrical:comic_relief.ttf",
+      "size": 9.2,
+      "oversample": 4.6
     },
     {
       "type": "reference",

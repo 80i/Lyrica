@@ -2,7 +2,7 @@
   "providers": [
     {
       "type": "ttf",
-      "file": "lyrica:righteous.ttf",
+      "file": "lyrical:montserrat.ttf",
       "size": 10.0,
       "oversample": 4.2
     },

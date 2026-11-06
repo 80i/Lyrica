@@ -9,7 +9,7 @@ import net.lyrica.v26_3.song.NowPlaying;
 public final class DemoLines {
 
   private static final String[] LINE_KEYS = {
-      "lyrica.demo.line1", "lyrica.demo.line2", "lyrica.demo.line3", "lyrica.demo.line4"
+      "lyrical.demo.line1", "lyrical.demo.line2", "lyrical.demo.line3", "lyrical.demo.line4"
   };
   private static final long LINE_MS = 4_000L;
   // A long run of repeats rather than a jump back, so the stage only ever sees time moving on to a new line.
@@ -131,8 +131,8 @@ public final class DemoLines {
 
   private static NowPlaying demoSong(long durationMs, long positionMs) {
     return new NowPlaying(
-        I18n.translate("lyrica.demo.title"),
-        I18n.translate("lyrica.demo.artist"),
+        I18n.translate("lyrical.demo.title"),
+        I18n.translate("lyrical.demo.artist"),
         "",
         durationMs,
         positionMs,

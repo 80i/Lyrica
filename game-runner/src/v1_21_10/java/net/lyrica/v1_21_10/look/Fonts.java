@@ -95,6 +95,6 @@ public final class Fonts {
   }
 
   private static Style fontStyle(String file) {
-    return Style.EMPTY.withFont(new FontDescription.Resource(ResourceLocation.fromNamespaceAndPath("lyrica", file)));
+    return Style.EMPTY.withFont(new FontDescription.Resource(ResourceLocation.fromNamespaceAndPath("lyrical", file)));
   }
 }

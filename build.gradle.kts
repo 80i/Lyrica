@@ -23,7 +23,7 @@ labyMod {
     }
 
     addonInfo {
-        namespace = "lyrica"
+        namespace = "lyrical"
         displayName = "Lyrica"
         author = "6O2, Philips & GCC"
         description = "Synced lyrics of the song playing on your PC, standing in the world around you or on your screen, with a now-playing widget, karaoke and staff badges."

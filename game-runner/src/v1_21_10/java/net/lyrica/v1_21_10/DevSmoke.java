@@ -81,7 +81,7 @@ public final class DevSmoke {
   private static final String TAG = "[Lyrica smoke] ";
   private static final String WORLD = "devworld1_21_10";
   private static final String DEV_ENVIRONMENT = "net.labymod.addon-dev-environment";
-  private static final String ADDON_ID = "lyrica";
+  private static final String ADDON_ID = "lyrical";
   private static final String AUTHOR_CARD = "authorcard";
   private static final String ACCOUNT_PROOF = "accountproof";
   private static final String CARD_STYLE = "cardstyle";
@@ -122,9 +122,9 @@ public final class DevSmoke {
   private static final double CLOSE_CAMERA = 3.0;
   private static final double USUAL_CAMERA = 4.0;
   private static final int GONE_TEST_FOV = 110;
-  private static final String TEST_ROLE_LABEL = "lyrica.staff.role.developer";
+  private static final String TEST_ROLE_LABEL = "lyrical.staff.role.developer";
   private static final int TEST_ROLE_COLOR = 0xFF5A36;
-  private static final String TEST_ROLE_TITLE = "lyrica.staff.title.author";
+  private static final String TEST_ROLE_TITLE = "lyrical.staff.title.author";
   private static final UUID AN_AUTHOR = UUID.fromString("479708ff-6807-4154-9a10-370070a3f0df");
   private static final String AN_AUTHORS_NAME = "6O2";
   private static final int FAKE_PLAYER_ENTITY = -1_000_001;

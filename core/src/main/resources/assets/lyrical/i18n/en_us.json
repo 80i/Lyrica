@@ -1,5 +1,5 @@
 {
-  "lyrica": {
+  "lyrical": {
     "demo": {
       "title": "Demo line",
       "artist": "Lyrica",
@@ -520,6 +520,9 @@
         "description": "Turns the whole addon on or off: whatever your PC is playing, its words as solid letters in the world. How they look is set in the Lyrica menu."
       },
       "header": {
+        "privacy": {
+          "name": "Privacy"
+        },
         "lyrics": {
           "name": "Lyrics"
         },
@@ -535,6 +538,10 @@
         "menu": {
           "name": "Lyrica menu"
         }
+      },
+      "spotifyOnly": {
+        "name": "Spotify only",
+        "description": "Reads nothing from any other app, such as your browser. The Spotify website plays in your browser, so this needs the Spotify app."
       },
       "showLyrics": {
         "name": "Show lyrics",

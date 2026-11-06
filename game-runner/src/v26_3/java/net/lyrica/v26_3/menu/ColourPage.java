@@ -15,16 +15,16 @@ final class ColourPage extends Page {
 
   @Override
   protected void build() {
-    this.columns.group("lyrica.menu.colour.mode_group")
-        .add(new Chips("lyrica.menu.colour.mode", MODES, () -> this.look.colorMode,
+    this.columns.group("lyrical.menu.colour.mode_group")
+        .add(new Chips("lyrical.menu.colour.mode", MODES, () -> this.look.colorMode,
             value -> this.look.colorMode = value, () -> base.colorMode))
-        .add(new Fader("lyrica.menu.colour.flow", () -> this.look.flowSpeed, value -> this.look.flowSpeed = value,
+        .add(new Fader("lyrical.menu.colour.flow", () -> this.look.flowSpeed, value -> this.look.flowSpeed = value,
             () -> base.flowSpeed, 0.0F, 4.0F, 0.1F, Fader.ONE_PLACE).when(this::flows));
 
-    this.columns.group("lyrica.menu.colour.colours")
-        .add(new Swatches("lyrica.menu.colour.first", () -> this.look.color, value -> this.look.color = value,
+    this.columns.group("lyrical.menu.colour.colours")
+        .add(new Swatches("lyrical.menu.colour.first", () -> this.look.color, value -> this.look.color = value,
             () -> base.color).when(this::usesFirst))
-        .add(new Swatches("lyrica.menu.colour.second", () -> this.look.color2, value -> this.look.color2 = value,
+        .add(new Swatches("lyrical.menu.colour.second", () -> this.look.color2, value -> this.look.color2 = value,
             () -> base.color2).when(this::usesSecond));
   }
 

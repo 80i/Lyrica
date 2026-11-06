@@ -23,10 +23,10 @@ final class LooksPage extends Page {
   private final Gson gson = new Gson();
   private final List<String> presetPrints = new ArrayList<>();
   private final PresetTiles tiles = new PresetTiles();
-  private final Field saveField = new Field("lyrica.menu.looks.name", "lyrica.menu.looks.save", this::saveAs, false);
-  private final String wearWord = I18n.translate("lyrica.menu.looks.put_on");
-  private final String removeWord = I18n.translate("lyrica.menu.looks.remove");
-  private final String savedHint = I18n.translate("lyrica.menu.looks.saved_row.desc");
+  private final Field saveField = new Field("lyrical.menu.looks.name", "lyrical.menu.looks.save", this::saveAs, false);
+  private final String wearWord = I18n.translate("lyrical.menu.looks.put_on");
+  private final String removeWord = I18n.translate("lyrical.menu.looks.remove");
+  private final String savedHint = I18n.translate("lyrical.menu.looks.saved_row.desc");
 
   private String wornId;
   private int ticks;
@@ -47,10 +47,10 @@ final class LooksPage extends Page {
 
   @Override
   protected void build() {
-    this.columns.group("lyrica.menu.looks.mine").add(this.saveField);
-    Columns.Group saved = this.columns.group("lyrica.menu.looks.saved");
+    this.columns.group("lyrical.menu.looks.mine").add(this.saveField);
+    Columns.Group saved = this.columns.group("lyrical.menu.looks.saved");
     if (this.look.saved.isEmpty()) {
-      saved.add(new Note("lyrica.menu.looks.none_saved"));
+      saved.add(new Note("lyrical.menu.looks.none_saved"));
     }
 
     for (int i = 0; i < this.look.saved.size(); i++) {

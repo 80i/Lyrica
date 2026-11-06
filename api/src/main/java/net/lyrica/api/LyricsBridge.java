@@ -133,7 +133,7 @@ public interface LyricsBridge {
   /** The switches of the look that LabyMod's settings screen shows as well as the menu. */
   enum LookSwitch {
     LYRICS, HIDE_WHEN_PAUSED, KARAOKE, NEXT_LINE, BREAK_DOTS, CARD, CARD_COVER, CARD_TIMES, CARD_LINE, OWN_CARD,
-    SHARE_SONG, SHOW_SHARED, TEAM_ROLES
+    SHARE_SONG, SHOW_SHARED, TEAM_ROLES, SPOTIFY_ONLY
   }
 
   interface MenuKeyAccess {
@@ -152,14 +152,18 @@ public interface LyricsBridge {
   record StaffRole(String name, String label, int colorHex, String title) {
 
     /** Only texts under our own keys are looked up, so a typed label can never pull in somebody else's translation. */
-    private static final String KEY_PREFIX = "lyrica.";
+    private static final String KEY_PREFIX = "lyrical.";
+    /** What keys began with before the namespace changed, as the published list may still have them. */
+    private static final String OLD_KEY_PREFIX = "lyrica.";
 
     /**
      * The words of a label or a title. The bundled list holds translation keys of ours; what a team member types on the
      * Staff page is shown exactly as typed.
      */
     public static String shown(String text) {
-      return text != null && text.startsWith(KEY_PREFIX) && I18n.has(text) ? I18n.translate(text) : text;
+      String key = text != null && text.startsWith(OLD_KEY_PREFIX)
+          ? KEY_PREFIX + text.substring(OLD_KEY_PREFIX.length()) : text;
+      return key != null && key.startsWith(KEY_PREFIX) && I18n.has(key) ? I18n.translate(key) : text;
     }
   }
 

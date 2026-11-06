@@ -150,7 +150,7 @@ public final class WordsTexture {
     }
 
     Identifier texture() {
-      return Identifier.fromNamespaceAndPath("lyrica", "words_" + this.id);
+      return Identifier.fromNamespaceAndPath("lyrical", "words_" + this.id);
     }
   }
 }

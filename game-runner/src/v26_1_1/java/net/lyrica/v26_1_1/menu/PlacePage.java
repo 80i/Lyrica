@@ -13,7 +13,7 @@ final class PlacePage extends Page {
   private static final String[] FACING = {"FIXED", "TURN"};
   private static final String[] SPOTS = {"TOP", "MIDDLE", "BOTTOM"};
 
-  private final String behindDesk = I18n.translate("lyrica.menu.place.behind_desk");
+  private final String behindDesk = I18n.translate("lyrical.menu.place.behind_desk");
 
   PlacePage() {
     super("place");
@@ -21,32 +21,32 @@ final class PlacePage extends Page {
 
   @Override
   protected void build() {
-    this.columns.group("lyrica.menu.place.where")
-        .add(new Chips("lyrica.menu.place.place", PLACES, () -> this.look.place, value -> this.look.place = value,
+    this.columns.group("lyrical.menu.place.where")
+        .add(new Chips("lyrical.menu.place.place", PLACES, () -> this.look.place, value -> this.look.place = value,
             () -> base.place));
 
-    this.columns.group("lyrica.menu.place.position")
-        .add(new Fader("lyrica.menu.place.distance", () -> this.look.distance, value -> this.look.distance = value,
+    this.columns.group("lyrical.menu.place.position")
+        .add(new Fader("lyrical.menu.place.distance", () -> this.look.distance, value -> this.look.distance = value,
             () -> base.distance, 3.0F, 64.0F, 0.5F, Fader.ONE_PLACE).when(this::inWorld))
-        .add(new Fader("lyrica.menu.place.height_add", () -> this.look.heightAdd,
+        .add(new Fader("lyrical.menu.place.height_add", () -> this.look.heightAdd,
             value -> this.look.heightAdd = value, () -> base.heightAdd, -6.0F, 20.0F, 0.25F, Fader.TWO_PLACES)
             .when(this::inWorld))
-        .add(new Fader("lyrica.menu.place.spread", () -> this.look.spread, value -> this.look.spread = value,
+        .add(new Fader("lyrical.menu.place.spread", () -> this.look.spread, value -> this.look.spread = value,
             () -> base.spread, 0.0F, 3.0F, 0.05F, Fader.TWO_PLACES).when(this::inWorld));
 
-    this.columns.group("lyrica.menu.place.behaviour")
-        .add(new Chips("lyrica.menu.place.facing", FACING, () -> this.look.facing, value -> this.look.facing = value,
+    this.columns.group("lyrical.menu.place.behaviour")
+        .add(new Chips("lyrical.menu.place.facing", FACING, () -> this.look.facing, value -> this.look.facing = value,
             () -> base.facing).when(this::inWorld))
-        .add(new Lamp("lyrica.menu.place.carry", () -> this.look.carryWhenFast,
+        .add(new Lamp("lyrical.menu.place.carry", () -> this.look.carryWhenFast,
             value -> this.look.carryWhenFast = value, () -> base.carryWhenFast).when(this::inWorld))
-        .add(new Fader("lyrica.menu.place.trail_length", () -> this.look.trailLength,
+        .add(new Fader("lyrical.menu.place.trail_length", () -> this.look.trailLength,
             value -> this.look.trailLength = Math.round(value), () -> base.trailLength, 1.0F, 8.0F, 1.0F, Fader.WHOLE)
             .when(() -> "TRAIL".equals(this.look.place)));
 
-    this.columns.group("lyrica.menu.place.screen")
-        .add(new Chips("lyrica.menu.place.screen_spot", SPOTS, () -> this.look.screenSpot,
+    this.columns.group("lyrical.menu.place.screen")
+        .add(new Chips("lyrical.menu.place.screen_spot", SPOTS, () -> this.look.screenSpot,
             value -> this.look.screenSpot = value, () -> base.screenSpot).when(this::onScreen))
-        .add(new Fader("lyrica.menu.place.screen_size", () -> this.look.screenSize,
+        .add(new Fader("lyrical.menu.place.screen_size", () -> this.look.screenSize,
             value -> this.look.screenSize = value, () -> base.screenSize, 0.3F, 3.0F, 0.05F, Fader.TWO_PLACES)
             .when(this::onScreen))
         .add(new Note(() -> this.onScreen() && "BOTTOM".equals(this.look.screenSpot) ? this.behindDesk : ""));

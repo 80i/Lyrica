@@ -408,15 +408,15 @@ public final class Presets {
   private Presets() {
   }
 
-  /** A ready-made look. Name and description come from {@code lyrica.preset.<id>.name} and {@code .desc}. */
+  /** A ready-made look. Name and description come from {@code lyrical.preset.<id>.name} and {@code .desc}. */
   public record Preset(String id, Consumer<Look> apply) {
 
     public String name() {
-      return I18n.translate("lyrica.preset." + this.id + ".name");
+      return I18n.translate("lyrical.preset." + this.id + ".name");
     }
 
     public String description() {
-      return I18n.translate("lyrica.preset." + this.id + ".desc");
+      return I18n.translate("lyrical.preset." + this.id + ".desc");
     }
 
     public void apply(Look look) {

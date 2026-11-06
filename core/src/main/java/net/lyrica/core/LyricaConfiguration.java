@@ -27,6 +27,10 @@ public class LyricaConfiguration extends AddonConfig {
   @SwitchSetting
   private final ConfigProperty<Boolean> enabled = new ConfigProperty<>(true);
 
+  @SettingSection("privacy")
+  @SwitchSetting
+  private final ConfigProperty<Boolean> spotifyOnly = new ConfigProperty<>(false);
+
   @SettingSection("lyrics")
   @SwitchSetting
   private final ConfigProperty<Boolean> showLyrics = new ConfigProperty<>(true);
@@ -122,6 +126,7 @@ public class LyricaConfiguration extends AddonConfig {
     switches.put(LookSwitch.SHARE_SONG, this.shareSong);
     switches.put(LookSwitch.SHOW_SHARED, this.showShared);
     switches.put(LookSwitch.TEAM_ROLES, this.teamRoles);
+    switches.put(LookSwitch.SPOTIFY_ONLY, this.spotifyOnly);
     return switches;
   }
 

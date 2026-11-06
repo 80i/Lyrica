@@ -16,7 +16,7 @@ final class CardPage extends Page {
   private static final String[] STYLES = {"STRIP", "DISC", "COVER", "TICKER", "NONE"};
   private static final String[] CORNERS = {"TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"};
 
-  private final String hiddenWords = I18n.translate("lyrica.menu.card.behind_desk");
+  private final String hiddenWords = I18n.translate("lyrical.menu.card.behind_desk");
 
   CardPage() {
     super("card");
@@ -24,35 +24,35 @@ final class CardPage extends Page {
 
   @Override
   protected void build() {
-    this.columns.group("lyrica.menu.card.form")
-        .add(new Lamp("lyrica.menu.card.on", () -> this.look.cardOn, value -> this.look.cardOn = value,
+    this.columns.group("lyrical.menu.card.form")
+        .add(new Lamp("lyrical.menu.card.on", () -> this.look.cardOn, value -> this.look.cardOn = value,
             () -> base.cardOn))
-        .add(new Chips("lyrica.menu.card.style", STYLES, () -> this.look.cardStyle,
+        .add(new Chips("lyrical.menu.card.style", STYLES, () -> this.look.cardStyle,
             value -> this.look.cardStyle = value, () -> base.cardStyle).when(() -> this.look.cardOn));
 
-    this.columns.group("lyrica.menu.card.where")
-        .add(new Chips("lyrica.menu.card.corner", CORNERS, () -> this.look.cardCorner, this::setCorner,
+    this.columns.group("lyrical.menu.card.where")
+        .add(new Chips("lyrical.menu.card.corner", CORNERS, () -> this.look.cardCorner, this::setCorner,
             () -> base.cardCorner).when(() -> this.look.cardOn))
-        .add(new Action("lyrica.menu.card.back_to_corner", this::backToCorner).when(this::wasDragged))
+        .add(new Action("lyrical.menu.card.back_to_corner", this::backToCorner).when(this::wasDragged))
         .add(new Note(this::hiddenNote).color(Ink.ACCENT));
 
-    this.columns.group("lyrica.menu.card.measure")
-        .add(new Fader("lyrica.menu.card.size", () -> this.look.cardSize, value -> this.look.cardSize = value,
+    this.columns.group("lyrical.menu.card.measure")
+        .add(new Fader("lyrical.menu.card.size", () -> this.look.cardSize, value -> this.look.cardSize = value,
             () -> base.cardSize, 0.5F, 2.5F, 0.05F, Fader.TWO_PLACES).when(() -> this.look.cardOn))
-        .add(new Fader("lyrica.menu.card.opacity", () -> this.look.cardOpacity,
+        .add(new Fader("lyrical.menu.card.opacity", () -> this.look.cardOpacity,
             value -> this.look.cardOpacity = value, () -> base.cardOpacity, 0.1F, 1.0F, 0.01F, Fader.PERCENT)
             .when(() -> this.look.cardOn));
 
-    this.columns.group("lyrica.menu.card.shows")
-        .add(new Lamp("lyrica.menu.card.cover", () -> this.look.cardCover, value -> this.look.cardCover = value,
+    this.columns.group("lyrical.menu.card.shows")
+        .add(new Lamp("lyrical.menu.card.cover", () -> this.look.cardCover, value -> this.look.cardCover = value,
             () -> base.cardCover).when(() -> this.look.cardOn))
-        .add(new Lamp("lyrica.menu.card.times", () -> this.look.cardTimes, value -> this.look.cardTimes = value,
+        .add(new Lamp("lyrical.menu.card.times", () -> this.look.cardTimes, value -> this.look.cardTimes = value,
             () -> base.cardTimes).when(() -> this.look.cardOn))
-        .add(new Lamp("lyrica.menu.card.line", () -> this.look.cardLine, value -> this.look.cardLine = value,
+        .add(new Lamp("lyrical.menu.card.line", () -> this.look.cardLine, value -> this.look.cardLine = value,
             () -> base.cardLine).when(() -> this.look.cardOn));
 
-    this.columns.group("lyrica.menu.card.accent_group")
-        .add(new Swatches("lyrica.menu.card.accent", () -> this.look.cardAccent,
+    this.columns.group("lyrical.menu.card.accent_group")
+        .add(new Swatches("lyrical.menu.card.accent", () -> this.look.cardAccent,
             value -> this.look.cardAccent = value, () -> base.cardAccent).when(() -> this.look.cardOn));
   }
 

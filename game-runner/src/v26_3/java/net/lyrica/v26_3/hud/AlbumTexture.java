@@ -24,8 +24,8 @@ import net.lyrica.v26_3.song.NowPlaying;
 public final class AlbumTexture {
 
   public static final int SIZE = 128;
-  public static final Identifier COVER = Identifier.fromNamespaceAndPath("lyrica", "cover");
-  public static final Identifier RECORD = Identifier.fromNamespaceAndPath("lyrica", "cover_record");
+  public static final Identifier COVER = Identifier.fromNamespaceAndPath("lyrical", "cover");
+  public static final Identifier RECORD = Identifier.fromNamespaceAndPath("lyrical", "cover_record");
 
   // The card over the name: each cover at these sizes, because the game's samplers here have no mipmaps. Two slots,
   // taken in turn, so a card fading out the last song's cover still has it while the next one is loaded.
@@ -33,7 +33,7 @@ public final class AlbumTexture {
   private static final int CARD_SLOTS = 2;
   private static final int MOST_SHARED = 128;
 
-  private static final Identifier BLANK_RECORD = Identifier.fromNamespaceAndPath("lyrica", "blank_record");
+  private static final Identifier BLANK_RECORD = Identifier.fromNamespaceAndPath("lyrical", "blank_record");
   private static final long FADE_IN_MS = 220L;
 
   private static final float CENTER = (SIZE - 1) * 0.5F;
@@ -98,7 +98,7 @@ public final class AlbumTexture {
 
   /** @param size 0 for the largest of the card's textures, 1 and 2 for the next ones */
   public static Identifier cardCover(int slot, int size) {
-    return Identifier.fromNamespaceAndPath("lyrica", "card_cover_" + slot + "_" + size);
+    return Identifier.fromNamespaceAndPath("lyrical", "card_cover_" + slot + "_" + size);
   }
 
   /** How many pixels wide that size of the card's texture is. */
@@ -190,7 +190,7 @@ public final class AlbumTexture {
       SHARED.clear();
     }
 
-    Identifier texture = known != null ? known.texture : Identifier.fromNamespaceAndPath("lyrica",
+    Identifier texture = known != null ? known.texture : Identifier.fromNamespaceAndPath("lyrical",
         "shared_cover_" + player.toString().replace("-", ""));
     Minecraft.getInstance().getTextureManager().register(texture, new SmoothTexture("Lyrica shared cover", image));
     SHARED.put(player, new Shared(thumb, texture));

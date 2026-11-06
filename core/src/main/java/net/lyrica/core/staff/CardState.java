@@ -70,7 +70,7 @@ final class CardState {
   private static final float WAVE_PAUSED = 0.16F;
   private static final float WAVE_LOWEST = 0.22F;
 
-  private static final String PAUSED_KEY = "lyrica.card.paused";
+  private static final String PAUSED_KEY = "lyrical.card.paused";
 
   // The plain card's colours, which a card's style can only move away from
   private static final int TITLE_RGB = 0xF4F5F7;
