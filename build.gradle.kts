@@ -5,11 +5,11 @@ plugins {
 
 val versions = providers.gradleProperty("net.labymod.minecraft-versions").get().split(";")
 
-group = "net.splyrics"
+group = "net.lyrica"
 version = providers.environmentVariable("VERSION").getOrElse("1.0.0")
 
 labyMod {
-    defaultPackageName = "net.splyrics"
+    defaultPackageName = "net.lyrica"
 
     minecraft {
         registerVersion(versions.toTypedArray()) {
@@ -23,17 +23,17 @@ labyMod {
     }
 
     addonInfo {
-        namespace = "splyrics"
-        displayName = "SpLyrics"
+        namespace = "lyrica"
+        displayName = "Lyrica"
         author = "6O2, Philips & GCC"
         description = "Synced lyrics of the song playing on your PC, standing in the world around you or on your screen, with a now-playing widget, karaoke and staff badges."
-        minecraftVersion = "1.21.11"
+        minecraftVersion = versions.joinToString(",")
         version = rootProject.version.toString()
     }
 }
 
 tasks.withType<net.labymod.labygradle.common.tasks.CreateReleaseJarTask>().configureEach {
-    destination.set(layout.buildDirectory.file("libs/splyrics.jar"))
+    destination.set(layout.buildDirectory.file("libs/lyrica.jar"))
 }
 
 subprojects {

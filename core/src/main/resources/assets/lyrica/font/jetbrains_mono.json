@@ -1,0 +1,14 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "lyrica:jetbrains_mono.ttf",
+      "size": 9.6,
+      "oversample": 4.4
+    },
+    {
+      "type": "reference",
+      "id": "minecraft:default"
+    }
+  ]
+}
