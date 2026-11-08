@@ -19,7 +19,8 @@ import net.lyrica.v26_1_2.song.NowPlaying;
 import net.lyrica.v26_1_2.words.LrclibSearch.Match;
 
 /**
- * The lyrics of the current song: from the disk cache, else from lrclib.net, all on a worker thread.
+ * The lyrics of the current song: from the disk cache, else from lrclib.net, all on a worker thread. When lrclib only
+ * times lines, NetEase is asked for word timings, and if that fails too the words of each line are guessed.
  */
 public final class LyricsLibrary {
 
@@ -36,6 +37,8 @@ public final class LyricsLibrary {
   private static final long LONGEST_LENGTH_WAIT_MS = 6_000L;
   // A record can gain word timings after it was kept here, so now and then a song played again looks.
   private static final long LOOK_FOR_WORDS_AFTER_MS = TimeUnit.DAYS.toMillis(30L);
+  // NetEase having no words for a song is kept this long before it is asked again.
+  private static final long NO_NETEASE_VALID_MS = TimeUnit.DAYS.toMillis(7L);
 
   private final ScheduledExecutorService workers = Executors.newSingleThreadScheduledExecutor(task -> {
     Thread thread = new Thread(task, "Lyrica lyrics");
@@ -133,6 +136,13 @@ public final class LyricsLibrary {
 
       Match found = LrclibSearch.best(now.artist(), now.title(), now.album(), now.durationMs());
       if (found == null) {
+        TimedLyrics words = neteaseWords(key, now);
+        if (words != null && token == this.loadToken.get()) {
+          this.current = words;
+          this.state = State.READY;
+          return;
+        }
+
         markNotFound(key);
         this.finishEmpty(token);
         return;
@@ -179,6 +189,11 @@ public final class LyricsLibrary {
 
   private void publish(long token, NowPlaying now, Match match) {
     TimedLyrics lyrics = lyricsOf(match, now.durationMs());
+    if (!lyrics.wordTimed() && token == this.loadToken.get()) {
+      TimedLyrics words = neteaseWords(now.key(), now);
+      lyrics = words != null ? words : lyrics.withGuessedWords();
+    }
+
     if (token != this.loadToken.get()) {
       return;
     }
@@ -190,6 +205,39 @@ public final class LyricsLibrary {
 
     this.current = lyrics;
     this.state = State.READY;
+  }
+
+  /**
+   * NetEase's word timings for the song, from the disk cache or asked for, or null when it has none or cannot be
+   * reached. Only a clear "none" is kept, so a song tried while offline is asked again the next time.
+   */
+  private static TimedLyrics neteaseWords(String key, NowPlaying now) {
+    Path file = cacheFile(key, ".yrc");
+    try {
+      String yrc = null;
+      if (Files.isRegularFile(file)) {
+        yrc = Files.readString(file, StandardCharsets.UTF_8);
+        boolean stale = System.currentTimeMillis() - Files.getLastModifiedTime(file).toMillis() >= NO_NETEASE_VALID_MS;
+        if (yrc.isEmpty() && !stale) {
+          return null;
+        }
+      }
+
+      if (yrc == null || yrc.isEmpty()) {
+        yrc = NeteaseWords.find(now.artist(), now.title(), now.durationMs());
+        AtomicFile.write(file, yrc == null ? "" : yrc);
+      }
+
+      if (yrc == null) {
+        return null;
+      }
+
+      TimedLyrics words = NeteaseWords.parse(yrc, now.durationMs());
+      return words.wordTimed() ? words : null;
+    } catch (IOException | RuntimeException e) {
+      Env.LOG.debug("No word timings from NetEase: {}", e.toString());
+      return null;
+    }
   }
 
   private void finishEmpty(long token) {

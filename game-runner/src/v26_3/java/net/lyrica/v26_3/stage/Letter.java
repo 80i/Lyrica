@@ -66,6 +66,8 @@ public final class Letter {
   float brightness = 1.0F;
   /** How far the letter has broken into pieces, 0 to 1; 0 while it is whole. */
   float shards;
+  /** Extra light the GLOW karaoke style gives the letter being sung, 0 to 1. */
+  float karaokeGlow;
 
   // The outlines of the glyph, kept for as long as it stays the same one, and which detail level it last used.
   VectorFace.Glyph vector;
@@ -105,5 +107,6 @@ public final class Letter {
     this.alpha = 1.0F;
     this.brightness = 1.0F;
     this.shards = 0.0F;
+    this.karaokeGlow = 0.0F;
   }
 }

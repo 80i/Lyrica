@@ -38,11 +38,16 @@ public final class Field extends Control {
   private long wrongUntil;
 
   public Field(String key, String buttonKey, Predicate<String> action, boolean keepText) {
+    this(key, buttonKey, action, keepText, MAX_LENGTH);
+  }
+
+  /** @param maxLength how many characters it takes, for text longer than a name, like a look's share code */
+  public Field(String key, String buttonKey, Predicate<String> action, boolean keepText, int maxLength) {
     super(words(key), words(key + ".desc"));
     this.button = words(buttonKey);
     this.action = action;
     this.keepText = keepText;
-    this.line = new TextLine(MAX_LENGTH, point -> true);
+    this.line = new TextLine(maxLength, point -> true);
     this.get = null;
     this.set = null;
     this.plain = null;

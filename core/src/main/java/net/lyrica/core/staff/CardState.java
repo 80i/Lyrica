@@ -489,8 +489,8 @@ final class CardState {
     String under = song.title().isEmpty() ? "" : song.artist();
     LyricsBridge.LocalSong.Cover cover = this.look.cover() ? song.cover() : null;
     if (detail == Detail.LINE) {
-      return new Face(null, Words.of(title, true, MOST_LINE_WIDTH, 1.0F, font, bridge), null, color, false, false, cover,
-          false, false, paused, null, 0.0F, detail);
+      return new Face(null, titleWords(title, MOST_LINE_WIDTH, font, bridge), null, color, false, false, cover, false, false,
+          paused, null, 0.0F, detail);
     }
 
     Component word = null;
@@ -506,19 +506,21 @@ final class CardState {
     // The time stands on the top line, whichever line that is
     Words labelWords = label == null ? null : Words.of(label, true, MOST_LINE_WIDTH - room, TIME_SIZE, font, bridge);
     float titleRoom = label == null ? MOST_LINE_WIDTH - room : MOST_LINE_WIDTH;
-    String titleMode = bridge.songCardTitle();
-    Words first;
-    if (TITLE_SHORTENED.equals(titleMode)) {
-      first = Words.of(title, true, titleRoom, 1.0F, font, bridge);
-    } else if (TITLE_WHOLE.equals(titleMode)) {
-      first = Words.of(title, true, MOST_FULL_TITLE_WIDTH, 1.0F, font, bridge);
-    } else {
-      first = Words.sliding(title, titleRoom, font, bridge);
-    }
-
+    Words first = titleWords(title, titleRoom, font, bridge);
     Words second = under.isEmpty() ? null : Words.of(under, false, MOST_LINE_WIDTH, ARTIST_SIZE, font, bridge);
     return new Face(labelWords, first, second, color, true, song.hasProgress(), cover, this.look.wave(), showTime, paused,
         word, wordWidth, detail);
+  }
+
+  /** The title as the viewer wants long ones shown, on the full card and on the single line alike. */
+  private static Words titleWords(String title, float room, FontRenderer font, LyricsBridge bridge) {
+    String titleMode = bridge.songCardTitle();
+    if (TITLE_SHORTENED.equals(titleMode)) {
+      return Words.of(title, true, room, 1.0F, font, bridge);
+    }
+
+    return TITLE_WHOLE.equals(titleMode) ? Words.of(title, true, MOST_FULL_TITLE_WIDTH, 1.0F, font, bridge)
+        : Words.sliding(title, room, font, bridge);
   }
 
   /** A colour, lifted toward white if it is too dark to read on the dark card. */

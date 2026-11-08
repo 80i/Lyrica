@@ -79,6 +79,11 @@ public final class LookStore {
 
   private static Look fresh() {
     Look look = new Look();
+    Presets.Preset house = Presets.lyrica();
+    if (house != null) {
+      house.apply(look);
+    }
+
     look.repair();
     return look;
   }

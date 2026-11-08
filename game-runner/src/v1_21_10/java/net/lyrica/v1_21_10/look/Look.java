@@ -61,7 +61,7 @@ public final class Look {
   public float idleAmount = 1.0F;
   public String arrange = "LINE";
 
-  // Karaoke: DIM, SWEEP, FILL, LIFT
+  // Karaoke: DIM, SWEEP, FILL, LIFT, WIPE, SPRING, GLOW, LINE
   public boolean karaoke = false;
   public String karaokeStyle = "DIM";
 

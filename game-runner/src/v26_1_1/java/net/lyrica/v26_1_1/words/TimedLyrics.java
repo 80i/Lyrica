@@ -16,10 +16,24 @@ public final class TimedLyrics {
     this.lines = sorted.toArray(new TimedLine[0]);
     boolean any = false;
     for (int i = 0; i < this.lines.length; i++) {
-      any |= this.lines[i].parts() != null;
+      any |= this.lines[i].knowsWords();
     }
 
     this.wordTimed = any;
+  }
+
+  /**
+   * The same lyrics with a guess at when each word is sung put on every line that has no word timings, so that the
+   * karaoke follows the singing more closely than letters spread over the whole line would.
+   */
+  public TimedLyrics withGuessedWords() {
+    List<TimedLine> guessed = new ArrayList<>(this.lines.length);
+    for (TimedLine line : this.lines) {
+      guessed.add(line.parts() != null ? line : new TimedLine(line.startMs(), line.endMs(), line.text(),
+          SungParts.guess(line.text(), line.windowMs()), line.voice(), line.background()));
+    }
+
+    return new TimedLyrics(guessed);
   }
 
   /** Whether any line knows when its letters are sung. */

@@ -4,21 +4,24 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 import net.labymod.api.util.I18n;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.lyrica.v26_1_1.look.Look;
 import net.lyrica.v26_1_1.look.Presets;
 import net.lyrica.v26_1_1.look.SavedLook;
+import net.lyrica.v26_1_1.look.ShareCode;
 import net.lyrica.v26_1_1.menu.controls.Action;
 import net.lyrica.v26_1_1.menu.controls.Field;
 import net.lyrica.v26_1_1.menu.controls.Ink;
 import net.lyrica.v26_1_1.menu.controls.Note;
 
-/** Ready-made looks in a moving row, and below it the player's own saved ones. */
+/** Ready-made looks in a moving row, and below it the player's own saved ones and their share codes. */
 final class LooksPage extends Page {
 
   private static final int LEAST_ROW = 34;
   private static final int LEAST_COLUMNS = 40;
   private static final int WORN_CHECK_TICKS = 10;
+  private static final int CODE_LENGTH = 4_096;
 
   private final Gson gson = new Gson();
   private final List<String> presetPrints = new ArrayList<>();
@@ -27,6 +30,10 @@ final class LooksPage extends Page {
   private final String wearWord = I18n.translate("lyrical.menu.looks.put_on");
   private final String removeWord = I18n.translate("lyrical.menu.looks.remove");
   private final String savedHint = I18n.translate("lyrical.menu.looks.saved_row.desc");
+  private final Field codeField = new Field("lyrical.menu.looks.code", "lyrical.menu.looks.add", this::addCode, false,
+      CODE_LENGTH);
+  private final Action copyCode = new Action("lyrical.menu.looks.copy_code", this::copyCode)
+      .flash(I18n.translate("lyrical.menu.looks.copied"));
 
   private String wornId;
   private int ticks;
@@ -48,6 +55,7 @@ final class LooksPage extends Page {
   @Override
   protected void build() {
     this.columns.group("lyrical.menu.looks.mine").add(this.saveField);
+    this.columns.group("lyrical.menu.looks.share").add(this.copyCode).add(this.codeField);
     Columns.Group saved = this.columns.group("lyrical.menu.looks.saved");
     if (this.look.saved.isEmpty()) {
       saved.add(new Note("lyrical.menu.looks.none_saved"));
@@ -70,14 +78,50 @@ final class LooksPage extends Page {
       return false;
     }
 
+    this.saveAs(name, this.look);
+    return true;
+  }
+
+  private void saveAs(String name, Look from) {
     for (int i = this.look.saved.size() - 1; i >= 0; i--) {
       if (this.look.saved.get(i).name.equalsIgnoreCase(name)) {
         this.look.saved.remove(i);
       }
     }
 
-    this.look.saved.add(new SavedLook(name, this.look));
+    this.look.saved.add(new SavedLook(name, from));
     this.rebuild();
+  }
+
+  /** Puts the code of what is worn now on the clipboard, under the name of the saved look or preset it matches. */
+  private void copyCode() {
+    Minecraft.getInstance().keyboardHandler.setClipboard(ShareCode.encode(this.wornName(), this.look));
+  }
+
+  private String wornName() {
+    String print = this.print(this.look);
+    for (int i = this.look.saved.size() - 1; i >= 0; i--) {
+      SavedLook entry = this.look.saved.get(i);
+      if (this.print(entry.look).equals(print)) {
+        return entry.name;
+      }
+    }
+
+    return this.wornId != null ? Presets.byId(this.wornId).name() : I18n.translate("lyrical.menu.looks.shared_name");
+  }
+
+  /** Takes a friend's code: it is kept under its name, the same name replacing the old one, and put on. */
+  private boolean addCode(String code) {
+    ShareCode.Shared shared = ShareCode.decode(code);
+    if (shared == null) {
+      return false;
+    }
+
+    String name = shared.name().isEmpty() ? I18n.translate("lyrical.menu.looks.shared_name") : shared.name();
+    this.saveAs(name, shared.look());
+    this.look.copyLookFrom(shared.look());
+    base = shared.look();
+    this.findWorn();
     return true;
   }
 
@@ -167,9 +211,7 @@ final class LooksPage extends Page {
 
   /** The mark follows the look itself: move one fader and it is no longer that preset. */
   private void findWorn() {
-    Look part = new Look();
-    part.copyLookFrom(this.look);
-    String print = this.gson.toJson(part);
+    String print = this.print(this.look);
     this.wornId = null;
     for (int i = 0; i < this.presetPrints.size(); i++) {
       if (this.presetPrints.get(i).equals(print)) {
@@ -177,5 +219,12 @@ final class LooksPage extends Page {
         return;
       }
     }
+  }
+
+  /** The look parts of a look as text, for telling whether two looks are the same. */
+  private String print(Look look) {
+    Look part = new Look();
+    part.copyLookFrom(look);
+    return this.gson.toJson(part);
   }
 }

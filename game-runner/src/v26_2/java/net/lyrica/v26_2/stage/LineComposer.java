@@ -47,6 +47,16 @@ public final class LineComposer {
   private static final float WORD_BRIGHT = 0.5F;
   private static final float WORD_LIFT = 0.32F;
   private static final float SECOND_VOICE_TINT = 0.65F;
+  // WIPE: how many letters the soft edge of the fill is spread over, and how bright the edge itself runs.
+  private static final float WIPE_EDGE_LETTERS = 1.6F;
+  private static final float WIPE_EDGE_BRIGHT = 0.55F;
+  // SPRING: how fast the letter springs up and how quickly it settles; under 1 it overshoots a little.
+  private static final float SPRING_HZ = 3.2F;
+  private static final float SPRING_DAMPING = 0.42F;
+  // A syllable held this long has its letters swell one after another, as in a long sung note.
+  private static final float LONG_SYLLABLE_MS = 900.0F;
+  // GLOW: how long a letter keeps its light after it was sung.
+  private static final float GLOW_FADE_MS = 520.0F;
 
   private final ComposedLine line = new ComposedLine();
   private final List<Letter> pool = new ArrayList<>();
@@ -175,7 +185,40 @@ public final class LineComposer {
     }
 
     float word = timed ? wordBeingSung(l, elapsedMs) : 0.0F;
+    l.karaokeGlow = 0.0F;
     return switch (look.karaokeStyle) {
+      // The whole line lit while it is sung, for lyrics that only time lines.
+      case "LINE" -> {
+        float lit = elapsedMs < 0L ? 0.0F
+            : Motions.smooth(elapsedMs / 180.0F) * (1.0F - Motions.smooth((elapsedMs - windowMs) / 300.0F));
+        yield Palette.dim(rgb, 0.32F + 0.68F * lit);
+      }
+      // A soft edge running through the line, spread over its neighbours so the fill never steps letter by letter.
+      case "WIPE" -> {
+        float edge = Math.max(SOFT_EDGE_MS, length * WIPE_EDGE_LETTERS);
+        float cover = elapsedMs >= windowMs ? 1.0F : Motions.clamp01((since + edge * 0.5F) / (length + edge));
+        float lead = cover <= 0.0F || cover >= 1.0F ? 0.0F : 1.0F - Math.abs(2.0F * cover - 1.0F);
+        int base = Palette.mix(Palette.dim(rgb, 0.38F), rgb, cover * cover * (3.0F - 2.0F * cover));
+        yield Palette.mix(base, 0xFFFFFF, lead * WIPE_EDGE_BRIGHT);
+      }
+      // Each letter springs up when it is sung and settles back with a small bounce; a long syllable swells.
+      case "SPRING" -> {
+        float h = line.glyphHeight * l.homeScale;
+        float bounce = spring(since) * (1.0F - spring(since - Math.max(length, 220.0F)) * 0.85F);
+        float syllable = timed ? l.wordTo - l.wordFrom : length;
+        float swell = syllable >= LONG_SYLLABLE_MS ? beingSung : 0.0F;
+        l.y -= h * (0.16F * bounce + 0.08F * swell);
+        l.z += h * (0.35F * bounce + 0.3F * swell);
+        l.scale *= 1.0F + 0.08F * bounce + 0.22F * swell;
+        yield Palette.dim(rgb, 0.45F + 0.55F * Math.max(sung, word));
+      }
+      // The letter being sung lights up and leaves a glow fading behind it.
+      case "GLOW" -> {
+        float trail = since < 0.0F ? 0.0F
+            : since < length ? 1.0F : 1.0F - Motions.smooth((since - length) / GLOW_FADE_MS);
+        l.karaokeGlow = Math.max(trail, word * 0.35F);
+        yield Palette.mix(Palette.dim(rgb, 0.4F + 0.6F * sung), 0xFFFFFF, trail * 0.35F);
+      }
       case "SWEEP" -> Palette.mix(Palette.dim(rgb, 0.8F), 0xFFFFFF, Math.max(beingSung * 0.85F, word * WORD_BRIGHT));
       case "FILL" -> Palette.mix(rgb, look.color2, sung);
       case "LIFT" -> {
@@ -188,6 +231,23 @@ public final class LineComposer {
       }
       default -> Palette.dim(rgb, 0.32F + 0.68F * sung);
     };
+  }
+
+  /**
+   * How far a spring released at time 0 has gone towards 1, with no state kept between frames: the closed form of a
+   * damped spring, so it overshoots a little and settles. 0 before it starts.
+   */
+  private static float spring(float ms) {
+    if (ms <= 0.0F) {
+      return 0.0F;
+    }
+
+    float t = ms / 1000.0F;
+    float omega = (float) (2.0 * Math.PI * SPRING_HZ);
+    float damped = omega * (float) Math.sqrt(1.0 - SPRING_DAMPING * SPRING_DAMPING);
+    float decay = (float) Math.exp(-SPRING_DAMPING * omega * t);
+    return 1.0F - decay * ((float) Math.cos(damped * t)
+        + SPRING_DAMPING * omega / damped * (float) Math.sin(damped * t));
   }
 
   /** 1 from when the word starts until it has been sung, with a short way up and a longer way down. */

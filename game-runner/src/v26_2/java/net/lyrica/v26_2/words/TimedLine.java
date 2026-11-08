@@ -18,18 +18,23 @@ public record TimedLine(long startMs, long endMs, String text, SungParts parts, 
     this(startMs, endMs, text, parts, 0, null);
   }
 
+  /** Whether the lyrics said when its words are sung, rather than that being guessed or unknown. */
+  public boolean knowsWords() {
+    return this.parts != null && !this.parts.guessed();
+  }
+
   public long windowMs() {
     return Math.max(1L, this.endMs - this.startMs);
   }
 
   /** When the first word comes. A line can start before that. */
   public long firstSungMs() {
-    return this.parts == null ? this.startMs : this.startMs + this.parts.firstStart();
+    return !this.knowsWords() ? this.startMs : this.startMs + this.parts.firstStart();
   }
 
   /** When all that this line holds has been sung, which breaks in the singing are counted from. */
   public long sungEndMs() {
-    long own = this.parts == null ? this.endMs : this.startMs + this.parts.lastEnd();
+    long own = !this.knowsWords() ? this.endMs : this.startMs + this.parts.lastEnd();
     return this.background == null ? own : Math.max(own, this.background.sungEndMs());
   }
 }

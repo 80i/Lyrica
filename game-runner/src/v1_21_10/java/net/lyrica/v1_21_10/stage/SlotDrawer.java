@@ -526,11 +526,14 @@ final class SlotDrawer {
    */
   private void haloOf(Letter l, VectorFace.Glyph glyph, int alpha, float depthPx, float ahead) {
     boolean bright = "BRIGHT".equals(this.look.glow);
-    if (!bright && !"SOFT".equals(this.look.glow) || this.mesher.vertices >= RIM_VERTICES) {
+    boolean lit = bright || "SOFT".equals(this.look.glow);
+    // The GLOW karaoke style lights the sung letter even when the look has no glow of its own.
+    float sungGlow = l.karaokeGlow;
+    if (!lit && sungGlow <= 0.0F || this.mesher.vertices >= RIM_VERTICES) {
       return;
     }
 
-    float shown = alpha / 255.0F;
+    float shown = alpha / 255.0F * (lit ? 1.0F + sungGlow : sungGlow);
     int rgb = "CUSTOM".equals(this.look.glowColorMode) ? this.look.glowColor : l.argb & 0xFFFFFF;
     float reach = (bright ? BRIGHT_REACH : SOFT_REACH) * this.look.glowReach;
     float poolPeak = (bright ? BRIGHT_POOL_PEAK : SOFT_POOL_PEAK) * shown;

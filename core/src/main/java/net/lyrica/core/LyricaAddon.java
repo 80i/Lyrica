@@ -58,8 +58,7 @@ public class LyricaAddon extends LabyAddon<LyricaConfiguration> {
     Laby.labyAPI().tagRegistry().register("lyrica_song", PositionType.ABOVE_NAME, new SongTag(this, share, false));
     // Before the badge, as this stack builds upward too: the title stays right under the name, and the card under that
     Laby.labyAPI().tagRegistry().register("lyrica_song_under", PositionType.BELOW_NAME, new SongTag(this, share, true));
-    Laby.labyAPI().tagRegistry().register("lyrica_badge_over", PositionType.ABOVE_NAME, new BadgeTag(this, share, true));
-    Laby.labyAPI().tagRegistry().register("lyrica_badge", PositionType.BELOW_NAME, new BadgeTag(this, share, false));
+    Laby.labyAPI().tagRegistry().register("lyrica_badge", PositionType.BELOW_NAME, new BadgeTag(this, share));
 
     if (config.enabled().get()) {
       this.bridge.start();

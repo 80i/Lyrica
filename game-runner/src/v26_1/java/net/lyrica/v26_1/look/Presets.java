@@ -1,5 +1,6 @@
 package net.lyrica.v26_1.look;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import net.labymod.api.util.I18n;
@@ -12,7 +13,13 @@ public final class Presets {
 
   public static final String DEFAULT_ID = "billboard";
 
-  private static final List<Preset> ALL = List.of(
+  /** The house look, as a {@link ShareCode}. It leads the row and is what a new player starts in. */
+  public static final String LYRICA_ID = "lyrica";
+  private static final String LYRICA_CODE =
+      "LYRICA1-eNo9jt1Kw0AQhV9F5nop-WmSupcKrYHSBqOIV7I1kyZk2CmbDYql"
+      + "7-6spp27MzPnO-cMFjTUnXHY3BHzAAoI9Blatl4u1b6qyl0t27H_QdDRIs-iMEsFB6YGtHcTKvhkYgc6TpJseV_k8yIBXaRREWepgpb4qz4hiiVeyMMBbRN4kQKePPUWr6wRqd32_iqPYpQmD8_l5ukF_vXjHJcXSbrKVuI5GTcQjjdGZ5pgaw2NIn3neDp2b4bo9oLWozBgvX3_KHcCxu8Q-qf3ryFpMM7wMPe6XH4BkWdcnA";
+
+  private static final List<Preset> BUILT_IN = List.of(
       preset("billboard", l -> {
         // Road-side lettering: huge, thick, and lit only by the world it stands in.
         l.font = "BEBAS";
@@ -405,6 +412,8 @@ public final class Presets {
       })
   );
 
+  private static final List<Preset> ALL = withHouseLook();
+
   private Presets() {
   }
 
@@ -445,6 +454,23 @@ public final class Presets {
     }
 
     return null;
+  }
+
+  /** The Lyrica look, when its code reads; null otherwise. */
+  public static Preset lyrica() {
+    return byId(LYRICA_ID);
+  }
+
+  private static List<Preset> withHouseLook() {
+    ShareCode.Shared house = ShareCode.decode(LYRICA_CODE);
+    if (house == null) {
+      return BUILT_IN;
+    }
+
+    List<Preset> all = new ArrayList<>(BUILT_IN.size() + 1);
+    all.add(new Preset(LYRICA_ID, look -> look.copyLookFrom(house.look())));
+    all.addAll(BUILT_IN);
+    return List.copyOf(all);
   }
 
   private static Preset preset(String id, Consumer<Look> settings) {

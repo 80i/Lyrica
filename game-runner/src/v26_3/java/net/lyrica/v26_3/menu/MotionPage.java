@@ -18,7 +18,7 @@ final class MotionPage extends Page {
   private static final String[] IDLES = {
       "NONE", "BREATHE", "BOB", "SWAY", "WAVE", "RIPPLE", "JITTER", "FLICKER", "GLITCH", "ORBIT_LETTERS"
   };
-  private static final String[] KARAOKE = {"DIM", "SWEEP", "FILL", "LIFT"};
+  private static final String[] KARAOKE = {"DIM", "SWEEP", "FILL", "LIFT", "WIPE", "SPRING", "GLOW", "LINE"};
 
   MotionPage() {
     super("motion");

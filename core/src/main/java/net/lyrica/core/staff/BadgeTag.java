@@ -23,8 +23,8 @@ import net.lyrica.core.share.SongShare;
 /**
  * A team member's title: one small line with the role's words in its colour and the player's own title beside them, as
  * bare words or on a little card, as the Staff page sets it. It stands under the name, unless the role is kept on the song
- * card, and then it stands over the name for as long as there is no song card to carry it: one instance of this for each
- * of those places. Who is on the team goes by the account id, and the bridge answers only with proof of that account; see
+ * card and that card is showing: when the card goes, as it does once the song has been paused a while, the role comes
+ * back under the name. Who is on the team goes by the account id, and the bridge answers only with proof of that account; see
  * the design document.
  */
 public class BadgeTag extends AbstractNameTag {
@@ -64,17 +64,14 @@ public class BadgeTag extends AbstractNameTag {
 
   private final LyricaAddon addon;
   private final SongShare share;
-  private final boolean overName;
   private final Map<UUID, State> badges = new HashMap<>();
 
   private Material flatMaterial;
   private State badge;
 
-  /** @param overName this is the one over the name, for a role kept on the song card while there is no such card */
-  public BadgeTag(LyricaAddon addon, SongShare share, boolean overName) {
+  public BadgeTag(LyricaAddon addon, SongShare share) {
     this.addon = addon;
     this.share = share;
-    this.overName = overName;
   }
 
   @Override
@@ -147,8 +144,7 @@ public class BadgeTag extends AbstractNameTag {
 
   /** Which of the two places it takes right now. */
   private boolean belongsHere(UUID player, LyricsBridge bridge) {
-    boolean keptOnCard = bridge.roleOnCard(player);
-    return this.overName ? keptOnCard && this.share.cardSong(player, bridge) == null : !keptOnCard;
+    return !bridge.roleOnCard(player) || this.share.cardSong(player, bridge) == null;
   }
 
   private void tidy(long now) {
@@ -195,7 +191,7 @@ public class BadgeTag extends AbstractNameTag {
 
     float alpha = state.reveal;
     float opacity = state.look.panelOpacity();
-    float first = this.overName ? 0.0F : GAP;
+    float first = GAP;
     if (opacity > 0.0F) {
       float left = grid.x(0.0F);
       float top = grid.y(first);

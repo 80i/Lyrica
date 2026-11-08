@@ -19,6 +19,10 @@
       }
     },
     "preset": {
+      "lyrica": {
+        "name": "Lyrica",
+        "desc": "The Lyrica house look."
+      },
       "billboard": {
         "name": "Billboard",
         "desc": "Huge, thick road-side letters, lit only by the world."
@@ -138,7 +142,15 @@
         "saved_row": {
           "desc": "One of your saved looks. Place, sync and card stay as they are when you put it on."
         },
-        "none_saved": "Nothing saved yet."
+        "none_saved": "Nothing saved yet.",
+        "share": "Share a look",
+        "copy_code": "Copy the code of this look",
+        "copy_code.desc": "Puts a code for what you wear now on your clipboard: type, color, solid form, light and motion. Send it to a friend and they can wear it too.",
+        "copied": "Copied",
+        "code": "Paste a friend's code",
+        "code.desc": "Adds the look in a share code to your saved looks under its name and puts it on.",
+        "add": "Add",
+        "shared_name": "Shared look"
       },
       "type": {
         "face": "Typeface",
@@ -278,11 +290,15 @@
         "karaoke": "Karaoke",
         "karaoke.desc": "Follows the singing along the line, by word timings when the lyrics have them.",
         "karaoke_style": "Style",
-        "karaoke_style.desc": "Unsung letters dark, a bright band passing, sung letters in the second color, or the sung letter stepping out.",
+        "karaoke_style.desc": "Dim darkens unsung letters, Sweep passes a bright band, Fill takes the second color, Lift steps the letter out, Wipe runs a soft edge through the words, Spring bounces each letter as it is sung, Glow lights the sung letter, and Line lights the whole line at once.",
         "karaoke_style.dim": "Dim",
         "karaoke_style.sweep": "Sweep",
         "karaoke_style.fill": "Fill",
-        "karaoke_style.lift": "Lift"
+        "karaoke_style.lift": "Lift",
+        "karaoke_style.wipe": "Wipe",
+        "karaoke_style.spring": "Spring",
+        "karaoke_style.glow": "Glow",
+        "karaoke_style.line": "Line"
       },
       "place": {
         "where": "Where",
@@ -481,7 +497,7 @@
         "size": "Size",
         "size.desc": "How big the title is close up. Further away it keeps the size its text needs.",
         "place": "Role stands",
-        "place.desc": "Under the name, on its own. Or on the song card, with the song, and over the name when no song plays. Or hidden, which takes it off the player for everyone once the list is published. The song card stays.",
+        "place.desc": "Under the name, on its own. Or on the song card, with the song, and back under the name when the card goes. Or hidden, which takes it off the player for everyone once the list is published. The song card stays.",
         "place.under": "Under name",
         "place.card": "On song card",
         "place.hidden": "Hidden",
