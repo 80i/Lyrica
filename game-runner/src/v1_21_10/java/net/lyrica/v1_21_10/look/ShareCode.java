@@ -151,10 +151,16 @@ public final class ShareCode {
     }
 
     StringBuilder clean = new StringBuilder();
-    name.strip().codePoints()
-        .filter(point -> point != 0xA7 && !Character.isISOControl(point))
-        .limit(MOST_NAME_CHARS)
-        .forEach(clean::appendCodePoint);
+    String text = name.strip();
+    int kept = 0;
+    for (int at = 0; at < text.length() && kept < MOST_NAME_CHARS; ) {
+      int point = text.codePointAt(at);
+      at += Character.charCount(point);
+      if (point != 0xA7 && !Character.isISOControl(point)) {
+        clean.appendCodePoint(point);
+        kept++;
+      }
+    }
     return clean.toString().strip();
   }
 }

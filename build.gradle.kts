@@ -36,7 +36,7 @@ labyMod {
 }
 
 tasks.withType<net.labymod.labygradle.common.tasks.CreateReleaseJarTask>().configureEach {
-    destination.set(layout.buildDirectory.file("libs/lyrica.jar"))
+    destination.set(layout.buildDirectory.file("libs/lyrica-release.jar"))
 
     // The launcher's addon list takes an icon from the store or from this field, and does not look for textures/icon.png
     doLast {
