@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -69,9 +70,20 @@ public final class StaffRoster {
    * nothing from a server or another player can change it. Asking sends no account or token. Empty means no such list.
    */
   private static final String PUBLISHED_URL = "https://raw.githubusercontent.com/80i/lyrica-staff/main/staff.json";
+  /**
+   * Which commit the list's branch stands at, from git's own address, which nothing caches. The file at
+   * {@link #PUBLISHED_URL} can be up to five minutes old, while the file at a commit never changes, so the list is read
+   * at the newest commit and only when that has moved. The branch's address stays the way in if this one cannot be read.
+   */
+  private static final String PUBLISHED_REFS_URL =
+      "https://github.com/80i/lyrica-staff.git/info/refs?service=git-upload-pack";
+  private static final String PUBLISHED_AT_URL = "https://raw.githubusercontent.com/80i/lyrica-staff/%s/staff.json";
+  private static final Pattern PUBLISHED_HEAD = Pattern.compile("([0-9a-f]{40}) refs/heads/main\\b");
+  private static final int MOST_REFS_BYTES = 256_000;
   private static final String PUBLISHED_COPY = "staff_published.json";
   private static final int MOST_PUBLISHED_BYTES = 512_000;
-  private static final long PUBLISHED_EVERY_MS = 600_000L;
+  // Asking which commit the branch is at costs a few hundred bytes, so a change reaches everybody within about a minute
+  private static final long PUBLISHED_EVERY_MS = 60_000L;
   private static final long PUBLISHED_RETRY_MS = 120_000L;
 
   private static final Map<String, Role> publishedRoles = new LinkedHashMap<>();
@@ -91,6 +103,8 @@ public final class StaffRoster {
   // Who may open the page, worked out only from the jar's list and from a real download
   private static final Set<UUID> panelHolders = new LinkedHashSet<>();
   private static String publishedText;
+  // The commit whose list is in use, or null when it came another way
+  private static String publishedCommit;
   private static boolean publishedLive;
   private static boolean copyTried;
   private static boolean fetching;
@@ -775,9 +789,10 @@ public final class StaffRoster {
     }
 
     fetching = true;
-    worker("Lyrica team list", () -> fetchPublished(PUBLISHED_URL));
+    worker("Lyrica team list", () -> fetchPublished(null));
   }
 
+  /** @param url where to read the list, or null for its newest commit */
   private static void fetchPublished(String url) {
     boolean readCopy;
     synchronized (StaffRoster.class) {
@@ -792,22 +807,66 @@ public final class StaffRoster {
       }
     }
 
-    boolean taken = false;
-    try {
-      Http.Reply reply = Http.getAtMost(url, MOST_PUBLISHED_BYTES);
-      if (reply.status() == 200) {
-        taken = takePublished(reply.body(), true);
-      } else {
-        Env.LOG.debug("The published team list answered {}", reply.status());
+    boolean taken;
+    if (url != null) {
+      taken = download(url);
+    } else {
+      String commit = newestCommit();
+      String inUse;
+      synchronized (StaffRoster.class) {
+        inUse = publishedLive ? publishedCommit : null;
       }
-    } catch (IOException | RuntimeException e) {
-      Env.LOG.debug("Could not read the published team list: {}", e.toString());
+
+      if (commit != null && commit.equals(inUse)) {
+        taken = true;
+      } else if (commit != null && download(String.format(Locale.ROOT, PUBLISHED_AT_URL, commit))) {
+        taken = true;
+        synchronized (StaffRoster.class) {
+          publishedCommit = commit;
+        }
+      } else {
+        // The branch's file can be older than a commit's list already in use, which it must not cover
+        taken = inUse == null && download(PUBLISHED_URL);
+      }
     }
 
     synchronized (StaffRoster.class) {
       fetching = false;
       nextFetchMs = System.currentTimeMillis() + (taken ? PUBLISHED_EVERY_MS : PUBLISHED_RETRY_MS);
     }
+  }
+
+  /** The commit the list's branch stands at now, or null when that cannot be told. */
+  private static String newestCommit() {
+    try {
+      Http.Reply reply = Http.getAtMost(PUBLISHED_REFS_URL, MOST_REFS_BYTES);
+      if (reply.status() == 200) {
+        Matcher head = PUBLISHED_HEAD.matcher(reply.body());
+        return head.find() ? head.group(1) : null;
+      }
+
+      Env.LOG.debug("The team list's branch answered {}", reply.status());
+    } catch (IOException | RuntimeException e) {
+      Env.LOG.debug("Could not tell the team list's newest commit: {}", e.toString());
+    }
+
+    return null;
+  }
+
+  /** @return whether a whole list came from there and could be used */
+  private static boolean download(String url) {
+    try {
+      Http.Reply reply = Http.getAtMost(url, MOST_PUBLISHED_BYTES);
+      if (reply.status() == 200) {
+        return takePublished(reply.body(), true);
+      }
+
+      Env.LOG.debug("The published team list answered {}", reply.status());
+    } catch (IOException | RuntimeException e) {
+      Env.LOG.debug("Could not read the published team list: {}", e.toString());
+    }
+
+    return false;
   }
 
   private static String readPublishedCopy() {
