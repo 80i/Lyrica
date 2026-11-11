@@ -1,5 +1,6 @@
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import net.labymod.labygradle.common.internal.labymod.addon.model.OperatingSystem
 
 plugins {
     id("net.labymod.labygradle")
@@ -32,6 +33,8 @@ labyMod {
         description = "Synced lyrics of the song playing on your PC, standing in the world around you or on your screen, with a now-playing widget, karaoke and staff badges."
         minecraftVersion = versions.joinToString(",")
         version = rootProject.version.toString()
+        // It reads the song from Windows' media controls, so on other systems it finds none
+        operatingSystem(OperatingSystem.WINDOWS)
     }
 }
 
