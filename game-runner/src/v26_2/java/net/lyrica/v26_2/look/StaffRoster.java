@@ -55,6 +55,8 @@ public final class StaffRoster {
   private static final Pattern ACCOUNT_NAME = Pattern.compile("[A-Za-z0-9_]{1,16}");
   private static final int DEFAULT_COLOR = 0xFFFFFF;
   private static final long CHECK_RETRY_MS = 60_000L;
+  // A token the service turned down can be renewed by the launcher or LabyMod while the game runs
+  private static final long REJECTED_RETRY_MS = 300_000L;
   private static final int MOST_TEXT = 64;
   private static final int MOST_ID = 32;
   // Room for an account id, which stands in for the name on a list that gives none
@@ -105,6 +107,7 @@ public final class StaffRoster {
   private static boolean previewHidden;
 
   private static UUID sessionId;
+  private static String sessionToken;
   private static boolean verified;
   private static boolean refused;
   private static boolean checking;
@@ -243,15 +246,25 @@ public final class StaffRoster {
   /**
    * Whether this session really is an account of the published list. False until a background check has confirmed it
    * with the account service, so ask again later. The session token goes to that service only, and only for an account
-   * on the list. A refusal holds for the session; a service that could not be reached is asked again after a while.
+   * on the list. A token it turns down is asked about again after a while, and at once when the game gets a new token;
+   * a service that could not be reached is asked again sooner.
    */
   public static synchronized boolean verifiedTeamMember() {
     load();
     User user = Minecraft.getInstance().getUser();
     UUID id = user.getProfileId();
+    String token = user.getAccessToken();
     if (!Objects.equals(id, sessionId)) {
       sessionId = id;
+      sessionToken = token;
       forgetSession();
+    } else if (!Objects.equals(token, sessionToken)) {
+      // A renewed sign-in of the same account: whatever the old token was told says nothing about this one
+      sessionToken = token;
+      if (!verified) {
+        refused = false;
+        nextCheckMs = 0L;
+      }
     }
 
     if (verified) {
@@ -261,7 +274,6 @@ public final class StaffRoster {
     if (!refused && !checking && id != null && publishedPlayers.containsKey(id)
         && System.currentTimeMillis() >= nextCheckMs) {
       checking = true;
-      String token = user.getAccessToken();
       worker("Lyrica account check", () -> checkSession(id, token));
     }
 
@@ -674,17 +686,37 @@ public final class StaffRoster {
 
   private static void checkSession(UUID id, String token) {
     boolean confirmed = false;
-    boolean answered = false;
+    // 200 for another account, or 404 for one without the game: no later token changes that
+    boolean wrongAccount = false;
+    // 401 or 403: this token is out of date or was signed out, which a renewed one can put right
+    boolean rejected = false;
+    int status = -1;
     try {
       Http.Reply reply = Http.getWithToken(PROFILE_URL, token);
-      int status = reply.status();
-      answered = status == 200 || status == 401 || status == 403 || status == 404;
+      status = reply.status();
       if (status == 200) {
         JsonObject profile = JsonParser.parseString(reply.body()).getAsJsonObject();
         confirmed = id.equals(parseId(profile.get("id").getAsString()));
+        wrongAccount = !confirmed;
+      } else {
+        wrongAccount = status == 404;
+        rejected = status == 401 || status == 403;
       }
     } catch (IOException | RuntimeException e) {
       Env.LOG.debug("Could not check the account: {}", e.toString());
+    }
+
+    // Asked only for accounts on the team list, so this says nothing to anybody else
+    if (confirmed) {
+      Env.LOG.info("Team account confirmed");
+    } else if (wrongAccount) {
+      Env.LOG.info("Team account not confirmed: the account service answered {}", status);
+    } else if (rejected) {
+      Env.LOG.info("Team account not confirmed: the account service turned down this sign-in ({}), asking again later",
+          status);
+    } else {
+      Env.LOG.info("Team account not confirmed: the account service could not be reached ({}), asking again soon",
+          status);
     }
 
     boolean mayEdit;
@@ -706,8 +738,11 @@ public final class StaffRoster {
         } else {
           revision++;
         }
-      } else if (answered) {
+      } else if (wrongAccount) {
         refused = true;
+      } else if (rejected) {
+        // A token that came while this one was being asked about is asked about straight away
+        nextCheckMs = Objects.equals(token, sessionToken) ? System.currentTimeMillis() + REJECTED_RETRY_MS : 0L;
       } else {
         nextCheckMs = System.currentTimeMillis() + CHECK_RETRY_MS;
       }
